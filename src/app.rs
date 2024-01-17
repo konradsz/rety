@@ -1,3 +1,4 @@
+use egui::TextEdit;
 use regex::Regex;
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
@@ -34,6 +35,15 @@ impl App {
 
         Default::default()
     }
+
+    fn capture(&self) {
+        for name in self.regex.capture_names() {
+            // log::info!("{name:?}");
+        }
+        for c in self.regex.captures_iter(&self.text) {
+            // c.
+        }
+    }
 }
 
 impl eframe::App for App {
@@ -47,12 +57,16 @@ impl eframe::App for App {
                 ui.label("Regex:");
                 ui.visuals_mut().extreme_bg_color = self.regex_field_color;
                 if ui
-                    .text_edit_singleline(&mut self.regex_str)
-                    // .highlight()
+                    .add(
+                        TextEdit::singleline(&mut self.regex_str)
+                            .code_editor()
+                            .hint_text(".*"),
+                    )
                     .changed()
                 {
                     if let Ok(regex) = Regex::new(&self.regex_str) {
                         self.regex = regex;
+                        // self.capture();
                         self.regex_field_color = CORRECT_REGEX_COLOR;
                     } else {
                         self.regex_field_color = INCORRECT_REGEX_COLOR;
@@ -64,7 +78,11 @@ impl eframe::App for App {
 
             ui.vertical_centered(|ui| {
                 ui.label("Text: ");
-                ui.text_edit_multiline(&mut self.text);
+                ui.add(
+                    TextEdit::multiline(&mut self.text)
+                        .code_editor()
+                        .hint_text("Hello world"),
+                );
             });
         });
     }
