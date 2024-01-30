@@ -1,4 +1,6 @@
-use egui::TextEdit;
+use std::sync::Arc;
+
+use egui::{TextEdit, TextStyle};
 use regex::Regex;
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
@@ -44,6 +46,47 @@ impl App {
             // c.
         }
     }
+
+    fn my_layouter(ui: &egui::Ui, text: &str, wrap_width: f32) -> Arc<egui::Galley> {
+        use egui::text::LayoutJob;
+        use egui::Color32;
+        let mut job = LayoutJob::default();
+
+        const COLORS: [Color32; 10] = [
+            Color32::LIGHT_BLUE,
+            Color32::LIGHT_RED,
+            Color32::LIGHT_GREEN,
+            Color32::LIGHT_YELLOW,
+            Color32::LIGHT_GRAY,
+            Color32::DARK_BLUE,
+            Color32::DARK_RED,
+            Color32::DARK_GREEN,
+            Color32::BROWN,
+            Color32::GOLD,
+        ];
+
+        for (index, word) in text.split_whitespace().enumerate() {
+            job.append(
+                word,
+                0.0,
+                egui::TextFormat {
+                    color: COLORS[index % COLORS.len()],
+                    ..Default::default()
+                },
+            );
+
+            job.append(
+                " ",
+                0.0,
+                egui::TextFormat {
+                    color: COLORS[index % COLORS.len()],
+                    ..Default::default()
+                },
+            );
+        }
+
+        ui.fonts(|f| f.layout_job(job))
+    }
 }
 
 impl eframe::App for App {
@@ -54,12 +97,12 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                ui.label("Regex:");
+                ui.monospace("Regex:");
                 ui.visuals_mut().extreme_bg_color = self.regex_field_color;
                 if ui
                     .add(
                         TextEdit::singleline(&mut self.regex_str)
-                            .code_editor()
+                            .font(TextStyle::Monospace)
                             .hint_text(".*"),
                     )
                     .changed()
@@ -77,11 +120,12 @@ impl eframe::App for App {
             ui.add_space(10.0);
 
             ui.vertical_centered(|ui| {
-                ui.label("Text: ");
+                ui.monospace("Text: ");
                 ui.add(
                     TextEdit::multiline(&mut self.text)
-                        .code_editor()
-                        .hint_text("Hello world"),
+                        .font(TextStyle::Monospace)
+                        .hint_text("Hello world")
+                        .layouter(&mut Self::my_layouter),
                 );
             });
         });
