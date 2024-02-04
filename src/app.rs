@@ -12,21 +12,31 @@ pub struct App {
     regex_str: String,
     text: String,
     #[serde(skip)]
-    regex: Regex,
+    regex: Option<Regex>,
     #[serde(skip)]
     regex_field_color: egui::Color32,
+    #[serde(skip)]
+    matched_groups: Vec<MatchGroup>,
 }
 
 impl Default for App {
     fn default() -> Self {
-        let regex_str = ".*";
+        let regex_str = ".*"; // TODO: rethink
         Self {
             regex_str: regex_str.to_string(),
             text: "Hello world".to_string(),
-            regex: Regex::new(regex_str).unwrap(),
+            regex: None,
             regex_field_color: CORRECT_REGEX_COLOR,
+            matched_groups: Vec::new(),
         }
     }
+}
+
+#[derive(Debug)]
+struct MatchGroup {
+    name: Option<String>,
+    start: usize,
+    end: usize,
 }
 
 impl App {
@@ -38,16 +48,42 @@ impl App {
         Default::default()
     }
 
-    fn capture(&self) {
-        for name in self.regex.capture_names() {
-            // log::info!("{name:?}");
-        }
-        for c in self.regex.captures_iter(&self.text) {
-            // c.
+    fn compile_regex(&mut self) {
+        if let Ok(regex) = Regex::new(&self.regex_str) {
+            self.regex = Some(regex);
+            self.collect_captures();
+            self.regex_field_color = CORRECT_REGEX_COLOR;
+        } else {
+            self.regex_field_color = INCORRECT_REGEX_COLOR;
         }
     }
 
-    fn my_layouter(ui: &egui::Ui, text: &str, wrap_width: f32) -> Arc<egui::Galley> {
+    fn collect_captures(&self) {
+        if let Some(regex) = &self.regex {
+            println!("capture");
+            let capture_names = regex.capture_names().collect::<Vec<_>>(); // TODO: do it when pattern changed
+
+            let mut matched_groups = Vec::new();
+            let mut locs = regex.capture_locations();
+            if let Some(_) = regex.captures_read(&mut locs, &self.text) {
+                for i in 0..locs.len() {
+                    let prefix = capture_names[i].unwrap_or("none");
+                    println!("{}: {:?}", prefix, locs.get(i));
+
+                    let (start, end) = locs.get(i).unwrap();
+                    matched_groups.push(MatchGroup {
+                        name: Some(prefix.to_string()),
+                        start,
+                        end,
+                    });
+                }
+            }
+
+            println!("{:?}", matched_groups);
+        }
+    }
+
+    fn my_layouter(ui: &egui::Ui, text: &str, _wrap_width: f32) -> Arc<egui::Galley> {
         use egui::text::LayoutJob;
         use egui::Color32;
         let mut job = LayoutJob::default();
@@ -75,6 +111,7 @@ impl App {
                 },
             );
 
+            // TODO: do not append at the end of the line
             job.append(
                 " ",
                 0.0,
@@ -95,9 +132,13 @@ impl eframe::App for App {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        if !self.regex_str.is_empty() && self.regex.is_none() {
+            self.compile_regex();
+        }
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                ui.monospace("Regex:");
+                ui.monospace("Pattern:");
                 ui.visuals_mut().extreme_bg_color = self.regex_field_color;
                 if ui
                     .add(
@@ -107,26 +148,25 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    if let Ok(regex) = Regex::new(&self.regex_str) {
-                        self.regex = regex;
-                        // self.capture();
-                        self.regex_field_color = CORRECT_REGEX_COLOR;
-                    } else {
-                        self.regex_field_color = INCORRECT_REGEX_COLOR;
-                    }
+                    self.compile_regex();
                 }
             });
 
             ui.add_space(10.0);
 
             ui.vertical_centered(|ui| {
-                ui.monospace("Text: ");
-                ui.add(
-                    TextEdit::multiline(&mut self.text)
-                        .font(TextStyle::Monospace)
-                        .hint_text("Hello world")
-                        .layouter(&mut Self::my_layouter),
-                );
+                ui.monospace("Haystack: ");
+                if ui
+                    .add(
+                        TextEdit::singleline(&mut self.text)
+                            .font(TextStyle::Monospace)
+                            .hint_text("Hello world")
+                            .layouter(&mut Self::my_layouter),
+                    )
+                    .changed()
+                {
+                    self.collect_captures();
+                }
             });
         });
     }
