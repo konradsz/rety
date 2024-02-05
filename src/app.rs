@@ -34,7 +34,7 @@ impl Default for App {
 
 #[derive(Debug)]
 struct MatchGroup {
-    name: Option<String>,
+    name: String,
     start: usize,
     end: usize,
 }
@@ -67,15 +67,13 @@ impl App {
             let mut locs = regex.capture_locations();
             if let Some(_) = regex.captures_read(&mut locs, &self.text) {
                 for i in 0..locs.len() {
-                    let prefix = capture_names[i].unwrap_or("none");
-                    println!("{}: {:?}", prefix, locs.get(i));
+                    let name = capture_names[i]
+                        .map(str::to_string)
+                        .unwrap_or_else(|| i.to_string());
+                    println!("{}: {:?}", name, locs.get(i));
 
                     let (start, end) = locs.get(i).unwrap();
-                    matched_groups.push(MatchGroup {
-                        name: Some(prefix.to_string()),
-                        start,
-                        end,
-                    });
+                    matched_groups.push(MatchGroup { name, start, end });
                 }
             }
 
