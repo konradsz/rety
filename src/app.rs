@@ -1,6 +1,4 @@
-use std::sync::Arc;
-
-use egui::{TextEdit, TextStyle};
+use egui::{text::LayoutJob, TextEdit, TextStyle};
 use regex::Regex;
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
@@ -17,6 +15,8 @@ pub struct App {
     regex_field_color: egui::Color32,
     #[serde(skip)]
     matched_groups: Vec<MatchGroup>,
+    #[serde(skip)]
+    hovered_group_index: Option<usize>,
 }
 
 impl Default for App {
@@ -28,6 +28,7 @@ impl Default for App {
             regex: None,
             regex_field_color: CORRECT_REGEX_COLOR,
             matched_groups: Vec::new(),
+            hovered_group_index: None,
         }
     }
 }
@@ -58,9 +59,8 @@ impl App {
         }
     }
 
-    fn collect_captures(&self) {
+    fn collect_captures(&mut self) {
         if let Some(regex) = &self.regex {
-            println!("capture");
             let capture_names = regex.capture_names().collect::<Vec<_>>(); // TODO: do it when pattern changed
 
             let mut matched_groups = Vec::new();
@@ -70,21 +70,23 @@ impl App {
                     let name = capture_names[i]
                         .map(str::to_string)
                         .unwrap_or_else(|| i.to_string());
-                    println!("{}: {:?}", name, locs.get(i));
 
                     let (start, end) = locs.get(i).unwrap();
                     matched_groups.push(MatchGroup { name, start, end });
                 }
             }
 
-            println!("{:?}", matched_groups);
+            self.matched_groups = matched_groups;
         }
     }
 
-    fn my_layouter(ui: &egui::Ui, text: &str, _wrap_width: f32) -> Arc<egui::Galley> {
-        use egui::text::LayoutJob;
+    fn set_layout(
+        text: &str,
+        _matched_groups: &[MatchGroup],
+        _hovered_group_index: Option<usize>,
+    ) -> LayoutJob {
         use egui::Color32;
-        let mut job = LayoutJob::default();
+        let mut layout_job = LayoutJob::default();
 
         const COLORS: [Color32; 10] = [
             Color32::LIGHT_BLUE,
@@ -100,7 +102,7 @@ impl App {
         ];
 
         for (index, word) in text.split_whitespace().enumerate() {
-            job.append(
+            layout_job.append(
                 word,
                 0.0,
                 egui::TextFormat {
@@ -110,7 +112,7 @@ impl App {
             );
 
             // TODO: do not append at the end of the line
-            job.append(
+            layout_job.append(
                 " ",
                 0.0,
                 egui::TextFormat {
@@ -120,7 +122,24 @@ impl App {
             );
         }
 
-        ui.fonts(|f| f.layout_job(job))
+        layout_job
+    }
+
+    fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
+        self.hovered_group_index = None;
+
+        for (idx, group) in self.matched_groups.iter().enumerate() {
+            if ui
+                .monospace(format!(
+                    "{}: {}",
+                    group.name,
+                    &self.text[group.start..group.end]
+                ))
+                .hovered()
+            {
+                self.hovered_group_index = Some(idx);
+            }
+        }
     }
 }
 
@@ -154,18 +173,31 @@ impl eframe::App for App {
 
             ui.vertical_centered(|ui| {
                 ui.monospace("Haystack: ");
+
+                let matched_groups = &self.matched_groups;
+                let hovered_group_index = self.hovered_group_index;
+                let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
+                    let mut layout_job =
+                        Self::set_layout(text, matched_groups, hovered_group_index);
+                    layout_job.wrap.max_width = wrap_width;
+                    ui.fonts(|f| f.layout_job(layout_job))
+                };
+
                 if ui
                     .add(
                         TextEdit::singleline(&mut self.text)
                             .font(TextStyle::Monospace)
                             .hint_text("Hello world")
-                            .layouter(&mut Self::my_layouter),
+                            // .layouter(&mut Self::my_layouter),
+                            .layouter(&mut layouter),
                     )
                     .changed()
                 {
                     self.collect_captures();
                 }
             });
+
+            self.draw_matched_groups(ui);
         });
     }
 }
