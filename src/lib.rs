@@ -1,4 +1,11 @@
-#![warn(clippy::all, rust_2018_idioms)]
-
 mod app;
 pub use app::App;
+
+mod layout;
+
+#[derive(Debug)]
+pub struct MatchGroup {
+    name: String,
+    start: usize,
+    end: usize,
+}

@@ -1,5 +1,7 @@
-use egui::{text::LayoutJob, TextEdit, TextStyle};
+use egui::{TextEdit, TextStyle};
 use regex::Regex;
+
+use crate::{layout, MatchGroup};
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
 const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
@@ -31,13 +33,6 @@ impl Default for App {
             hovered_group_index: None,
         }
     }
-}
-
-#[derive(Debug)]
-struct MatchGroup {
-    name: String,
-    start: usize,
-    end: usize,
 }
 
 impl App {
@@ -78,51 +73,6 @@ impl App {
 
             self.matched_groups = matched_groups;
         }
-    }
-
-    fn set_layout(
-        text: &str,
-        _matched_groups: &[MatchGroup],
-        _hovered_group_index: Option<usize>,
-    ) -> LayoutJob {
-        use egui::Color32;
-        let mut layout_job = LayoutJob::default();
-
-        const COLORS: [Color32; 10] = [
-            Color32::LIGHT_BLUE,
-            Color32::LIGHT_RED,
-            Color32::LIGHT_GREEN,
-            Color32::LIGHT_YELLOW,
-            Color32::LIGHT_GRAY,
-            Color32::DARK_BLUE,
-            Color32::DARK_RED,
-            Color32::DARK_GREEN,
-            Color32::BROWN,
-            Color32::GOLD,
-        ];
-
-        for (index, word) in text.split_whitespace().enumerate() {
-            layout_job.append(
-                word,
-                0.0,
-                egui::TextFormat {
-                    color: COLORS[index % COLORS.len()],
-                    ..Default::default()
-                },
-            );
-
-            // TODO: do not append at the end of the line
-            layout_job.append(
-                " ",
-                0.0,
-                egui::TextFormat {
-                    color: COLORS[index % COLORS.len()],
-                    ..Default::default()
-                },
-            );
-        }
-
-        layout_job
     }
 
     fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
@@ -178,7 +128,7 @@ impl eframe::App for App {
                 let hovered_group_index = self.hovered_group_index;
                 let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
                     let mut layout_job =
-                        Self::set_layout(text, matched_groups, hovered_group_index);
+                        layout::set_layout(text, matched_groups, hovered_group_index);
                     layout_job.wrap.max_width = wrap_width;
                     ui.fonts(|f| f.layout_job(layout_job))
                 };
@@ -188,7 +138,6 @@ impl eframe::App for App {
                         TextEdit::singleline(&mut self.text)
                             .font(TextStyle::Monospace)
                             .hint_text("Hello world")
-                            // .layouter(&mut Self::my_layouter),
                             .layouter(&mut layouter),
                     )
                     .changed()
