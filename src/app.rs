@@ -1,4 +1,4 @@
-use egui::{TextEdit, TextStyle};
+use egui::{Stroke, TextEdit, TextStyle};
 use regex::Regex;
 
 use crate::{layout, MatchGroup};
@@ -106,7 +106,12 @@ impl eframe::App for App {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.monospace("Pattern:");
-                ui.visuals_mut().extreme_bg_color = self.regex_field_color;
+
+                let stroke = Stroke::new(2.0, self.regex_field_color);
+                ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
+                ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
+                ui.visuals_mut().selection.stroke = stroke;
+
                 if ui
                     .add(
                         TextEdit::singleline(&mut self.regex_str)
