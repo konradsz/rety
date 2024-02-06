@@ -60,13 +60,13 @@ impl App {
 
             let mut matched_groups = Vec::new();
             let mut locs = regex.capture_locations();
-            if let Some(_) = regex.captures_read(&mut locs, &self.text) {
-                for i in 0..locs.len() {
-                    let name = capture_names[i]
+            if regex.captures_read(&mut locs, &self.text).is_some() {
+                for (idx, capture_name) in capture_names.iter().enumerate() {
+                    let name = capture_name
                         .map(str::to_string)
-                        .unwrap_or_else(|| i.to_string());
+                        .unwrap_or_else(|| idx.to_string());
 
-                    let (start, end) = locs.get(i).unwrap();
+                    let (start, end) = locs.get(idx).unwrap();
                     matched_groups.push(MatchGroup { name, start, end });
                 }
             }
