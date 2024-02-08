@@ -1,7 +1,10 @@
-use egui::{Stroke, TextEdit, TextStyle};
+use egui::{Color32, RichText, Stroke, TextEdit, TextStyle};
 use regex::Regex;
 
-use crate::{layout, MatchGroup};
+use crate::{
+    colors::{self, COLORS},
+    layout, MatchGroup,
+};
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
 const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
@@ -50,6 +53,7 @@ impl App {
             self.collect_captures();
             self.regex_field_color = CORRECT_REGEX_COLOR;
         } else {
+            self.matched_groups.clear();
             self.regex_field_color = INCORRECT_REGEX_COLOR;
         }
     }
@@ -72,6 +76,9 @@ impl App {
             }
 
             self.matched_groups = matched_groups;
+        } else {
+            // TODO: is it necessary?
+            self.matched_groups.clear();
         }
     }
 
@@ -79,14 +86,20 @@ impl App {
         self.hovered_group_index = None;
 
         for (idx, group) in self.matched_groups.iter().enumerate() {
-            if ui
-                .monospace(format!(
-                    "{}: {}",
-                    group.name,
-                    &self.text[group.start..group.end]
-                ))
-                .hovered()
-            {
+            let text = RichText::new(format!(
+                "{}: {}",
+                group.name,
+                &self.text[group.start..group.end]
+            ))
+            .monospace()
+            .color(COLORS[idx % COLORS.len()]);
+
+            // TODO: not working :(
+            ui.visuals_mut().widgets.hovered.fg_stroke.color = Color32::WHITE;
+            ui.visuals_mut().widgets.hovered.bg_fill = Color32::WHITE;
+
+            if ui.label(text).hovered() {
+                ui.visuals_mut().widgets.hovered.bg_fill = Color32::WHITE;
                 self.hovered_group_index = Some(idx);
             }
         }
