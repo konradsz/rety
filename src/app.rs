@@ -1,7 +1,6 @@
 use egui::{Color32, RichText, Stroke, TextEdit, TextStyle};
-use regex::Regex;
 
-use crate::{colors::COLORS, layout, MatchGroup};
+use crate::{captures::Captures2, colors::COLORS, layout};
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
 const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
@@ -12,13 +11,9 @@ pub struct App {
     regex_str: String,
     text: String,
     #[serde(skip)]
-    regex: Option<Regex>,
-    #[serde(skip)]
-    regex_field_color: egui::Color32,
-    #[serde(skip)]
-    matched_groups: Vec<MatchGroup>,
-    #[serde(skip)]
     hovered_group_index: Option<usize>,
+    #[serde(skip)]
+    captures: Captures2,
 }
 
 impl Default for App {
@@ -27,10 +22,8 @@ impl Default for App {
         Self {
             regex_str: regex_str.to_string(),
             text: "Hello world".to_string(),
-            regex: None,
-            regex_field_color: CORRECT_REGEX_COLOR,
-            matched_groups: Vec::new(),
             hovered_group_index: None,
+            captures: Captures2::default(),
         }
     }
 }
@@ -38,51 +31,21 @@ impl Default for App {
 impl App {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+            let mut app: App = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+
+            app.captures.compile_regex(&app.regex_str);
+            app.captures.collect_captures(&app.text);
+
+            return app;
         }
 
         Default::default()
     }
 
-    fn compile_regex(&mut self) {
-        if let Ok(regex) = Regex::new(&self.regex_str) {
-            self.regex = Some(regex);
-            self.collect_captures();
-            self.regex_field_color = CORRECT_REGEX_COLOR;
-        } else {
-            self.matched_groups.clear();
-            self.regex_field_color = INCORRECT_REGEX_COLOR;
-        }
-    }
-
-    fn collect_captures(&mut self) {
-        if let Some(regex) = &self.regex {
-            let capture_names = regex.capture_names().collect::<Vec<_>>(); // TODO: do it when pattern changed
-
-            let mut matched_groups = Vec::new();
-            let mut locs = regex.capture_locations();
-            if regex.captures_read(&mut locs, &self.text).is_some() {
-                for (idx, capture_name) in capture_names.iter().enumerate() {
-                    let name = capture_name
-                        .map(str::to_string)
-                        .unwrap_or_else(|| idx.to_string());
-
-                    let (start, end) = locs.get(idx).unwrap();
-                    matched_groups.push(MatchGroup { name, start, end });
-                }
-            }
-
-            self.matched_groups = matched_groups;
-        } else {
-            // TODO: is it necessary?
-            self.matched_groups.clear();
-        }
-    }
-
     fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
         self.hovered_group_index = None;
 
-        for (idx, group) in self.matched_groups.iter().enumerate() {
+        for (idx, group) in self.captures.matched_groups().iter().enumerate() {
             let text = RichText::new(format!(
                 "{}: {}",
                 group.name,
@@ -109,15 +72,17 @@ impl eframe::App for App {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        if !self.regex_str.is_empty() && self.regex.is_none() {
-            self.compile_regex();
-        }
-
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.monospace("Pattern:");
 
-                let stroke = Stroke::new(2.0, self.regex_field_color);
+                let regex_field_color = if self.captures.is_regex_valid() {
+                    CORRECT_REGEX_COLOR
+                } else {
+                    INCORRECT_REGEX_COLOR
+                };
+
+                let stroke = Stroke::new(2.0, regex_field_color);
                 ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
                 ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
                 ui.visuals_mut().selection.stroke = stroke;
@@ -130,7 +95,8 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    self.compile_regex();
+                    self.captures.compile_regex(&self.regex_str);
+                    self.captures.collect_captures(&self.text);
                 }
             });
 
@@ -139,7 +105,7 @@ impl eframe::App for App {
             ui.vertical_centered(|ui| {
                 ui.monospace("Haystack: ");
 
-                let matched_groups = &self.matched_groups;
+                let matched_groups = self.captures.matched_groups();
                 let hovered_group_index = self.hovered_group_index;
                 let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
                     let mut layout_job =
@@ -157,7 +123,7 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    self.collect_captures();
+                    self.captures.collect_captures(&self.text);
                 }
             });
 

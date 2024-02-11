@@ -1,6 +1,7 @@
 mod app;
 pub use app::App;
 
+mod captures;
 mod colors;
 mod layout;
 
