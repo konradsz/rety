@@ -1,10 +1,7 @@
 use egui::{Color32, RichText, Stroke, TextEdit, TextStyle};
 use regex::Regex;
 
-use crate::{
-    colors::{self, COLORS},
-    layout, MatchGroup,
-};
+use crate::{colors::COLORS, layout, MatchGroup};
 
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
 const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
