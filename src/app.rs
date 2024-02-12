@@ -34,7 +34,6 @@ impl App {
             let mut app: App = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
 
             app.captures.compile_regex(&app.regex_str);
-            // app.captures.collect_captures(&app.text);
             app.captures.collect_captures_iteratively(&app.text);
 
             return app;
@@ -46,11 +45,28 @@ impl App {
     fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
         self.hovered_group_index = None;
 
-        for (idx, group) in self.captures.matched_groups().iter().enumerate() {
+        // transpose the matched groups
+        let s = self
+            .captures
+            .matched_groups()
+            .first()
+            .map_or(0, |gs| gs.len());
+        let mut transposed = vec![Vec::new(); s];
+        for groups in self.captures.matched_groups() {
+            for (idx, group) in groups.iter().enumerate() {
+                transposed[idx].push(group);
+            }
+        }
+
+        for (idx, group) in transposed.iter().enumerate() {
             let text = RichText::new(format!(
                 "{}: {}",
-                group[idx].name,
-                &self.text[group[idx].start..group[idx].end]
+                group[0].name,
+                group
+                    .iter()
+                    .map(|g| g.capture.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
             ))
             .monospace()
             .color(COLORS[idx % COLORS.len()]);
@@ -97,7 +113,6 @@ impl eframe::App for App {
                     .changed()
                 {
                     self.captures.compile_regex(&self.regex_str);
-                    // self.captures.collect_captures(&self.text);
                     self.captures.collect_captures_iteratively(&self.text);
                 }
             });
@@ -125,7 +140,6 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    // self.captures.collect_captures(&self.text);
                     self.captures.collect_captures_iteratively(&self.text);
                 }
             });

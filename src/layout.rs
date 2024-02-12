@@ -1,6 +1,6 @@
 use egui::{text::LayoutJob, Color32};
 
-use crate::{colors::COLORS, MatchGroup};
+use crate::MatchGroup;
 
 pub fn set_layout(
     text: &str,
@@ -10,79 +10,40 @@ pub fn set_layout(
     // TODO: memoize
     let mut layout_job = LayoutJob::default();
 
-    // if let Some(group) = matched_groups.first() {
-    //     let group = group.first().unwrap();
-    //     if text.len() >= group.end {
-    //         if let Some(hovered_group_index) = hovered_group_index {
-    //             return highlight_group(
-    //                 text,
-    //                 &matched_groups[0][hovered_group_index],
-    //                 Color32::DARK_BLUE,
-    //             );
-    //         } else {
-    //             return highlight_group(text, group, Color32::DARK_BLUE);
-    //         }
-    //     }
-    // }
+    let mut starting_index = 0;
     for group in matched_groups {
         if let Some(g) = group.first() {
             if text.len() >= g.end {
                 if let Some(hovered_group_index) = hovered_group_index {
-                    highlight_group2(
+                    let hovered_group = &group[hovered_group_index];
+
+                    highlight_group(
                         &mut layout_job,
-                        &text[g.start..g.end],
-                        0,
-                        text.len(),
-                        &group[hovered_group_index],
+                        text,
+                        hovered_group,
                         Color32::DARK_BLUE,
+                        starting_index,
+                    );
+
+                    layout_job.append(
+                        &text[hovered_group.start + hovered_group.capture.len()..g.end],
+                        0.0,
+                        egui::TextFormat {
+                            ..Default::default()
+                        },
                     );
                 } else {
-                    highlight_group2(
-                        &mut layout_job,
-                        &text[g.start..g.end],
-                        0,
-                        text.len(),
-                        g,
-                        Color32::DARK_BLUE,
-                    );
+                    highlight_group(&mut layout_job, text, g, Color32::DARK_BLUE, starting_index);
                 }
+
+                starting_index = g.end;
             }
         }
     }
 
-    // default case, print the whole text
+    // print the rest of the text or the whole text if no groups were found
     layout_job.append(
-        text,
-        0.0,
-        egui::TextFormat {
-            color: COLORS[2],
-            ..Default::default()
-        },
-    );
-
-    layout_job
-}
-
-fn highlight_group(text: &str, group: &MatchGroup, color: Color32) -> LayoutJob {
-    let mut layout_job = LayoutJob::default();
-
-    layout_job.append(
-        &text[0..group.start],
-        0.0,
-        egui::TextFormat {
-            ..Default::default()
-        },
-    );
-    layout_job.append(
-        &text[group.start..group.end],
-        0.0,
-        egui::TextFormat {
-            background: color,
-            ..Default::default()
-        },
-    );
-    layout_job.append(
-        &text[group.end..],
+        &text[starting_index..],
         0.0,
         egui::TextFormat {
             ..Default::default()
@@ -93,13 +54,12 @@ fn highlight_group(text: &str, group: &MatchGroup, color: Color32) -> LayoutJob 
 }
 
 // TODO: add tests
-fn highlight_group2(
+fn highlight_group(
     layout_job: &mut LayoutJob,
     text: &str,
-    start_index: usize,
-    end_index: usize,
     group: &MatchGroup,
     color: Color32,
+    start_index: usize,
 ) {
     layout_job.append(
         &text[start_index..group.start],
@@ -109,17 +69,10 @@ fn highlight_group2(
         },
     );
     layout_job.append(
-        &text[group.start..group.end],
+        &group.capture,
         0.0,
         egui::TextFormat {
             background: color,
-            ..Default::default()
-        },
-    );
-    layout_job.append(
-        &text[group.end..end_index],
-        0.0,
-        egui::TextFormat {
             ..Default::default()
         },
     );

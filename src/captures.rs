@@ -22,36 +22,7 @@ impl Captures2 {
         self.regex.is_some()
     }
 
-    pub fn collect_captures(&mut self, text: &str) {
-        if let Some(regex) = &self.regex {
-            let capture_names = regex.capture_names().collect::<Vec<_>>(); // TODO: do it when pattern changed
-
-            let mut matched_groups = Vec::new();
-            let mut locs = regex.capture_locations();
-            if regex.captures_read(&mut locs, &text[12..]).is_some() {
-                for (idx, capture_name) in capture_names.iter().enumerate() {
-                    let name = capture_name
-                        .map(str::to_string)
-                        .unwrap_or_else(|| idx.to_string());
-
-                    let (start, end) = locs.get(idx).unwrap();
-                    matched_groups.push(MatchGroup {
-                        name,
-                        start: start + 12,
-                        end: end + 12,
-                    });
-                }
-            }
-
-            self.matched_groups.push(matched_groups);
-        } else {
-            // TODO: is it necessary? it is already cleared in compile_regex
-            self.matched_groups.clear();
-        }
-    }
-
     pub fn collect_captures_iteratively(&mut self, text: &str) {
-        // self.collect_captures(text);
         self.matched_groups.clear(); // TODO: needed here?
 
         if let Some(regex) = &self.regex {
@@ -77,6 +48,7 @@ impl Captures2 {
                         let (start, end) = locs.get(idx).unwrap();
                         matched_groups.push(MatchGroup {
                             name,
+                            capture: text[start + start_from..end + start_from].to_string(),
                             start: start + start_from,
                             end: end + start_from,
                         });
@@ -93,11 +65,6 @@ impl Captures2 {
     }
 
     pub fn matched_groups(&self) -> &[Vec<MatchGroup>] {
-        // if !self.matched_groups.is_empty() {
-        //     &self.matched_groups[0]
-        // } else {
-        //     &[]
-        // }
         &self.matched_groups
     }
 }
