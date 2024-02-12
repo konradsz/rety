@@ -34,7 +34,8 @@ impl App {
             let mut app: App = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
 
             app.captures.compile_regex(&app.regex_str);
-            app.captures.collect_captures(&app.text);
+            // app.captures.collect_captures(&app.text);
+            app.captures.collect_captures_iteratively(&app.text);
 
             return app;
         }
@@ -48,8 +49,8 @@ impl App {
         for (idx, group) in self.captures.matched_groups().iter().enumerate() {
             let text = RichText::new(format!(
                 "{}: {}",
-                group.name,
-                &self.text[group.start..group.end]
+                group[idx].name,
+                &self.text[group[idx].start..group[idx].end]
             ))
             .monospace()
             .color(COLORS[idx % COLORS.len()]);
@@ -96,7 +97,8 @@ impl eframe::App for App {
                     .changed()
                 {
                     self.captures.compile_regex(&self.regex_str);
-                    self.captures.collect_captures(&self.text);
+                    // self.captures.collect_captures(&self.text);
+                    self.captures.collect_captures_iteratively(&self.text);
                 }
             });
 
@@ -123,7 +125,8 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    self.captures.collect_captures(&self.text);
+                    // self.captures.collect_captures(&self.text);
+                    self.captures.collect_captures_iteratively(&self.text);
                 }
             });
 
