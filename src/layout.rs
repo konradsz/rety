@@ -7,6 +7,10 @@ pub fn set_layout(
     matched_groups: &[Vec<MatchGroup>],
     hovered_group_index: Option<usize>,
 ) -> LayoutJob {
+    if text.is_empty() {
+        return LayoutJob::default();
+    }
+
     // TODO: memoize
     let mut layout_job = LayoutJob::default();
 
@@ -76,4 +80,65 @@ fn highlight_group(
             ..Default::default()
         },
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use egui::text::LayoutSection;
+
+    use super::*;
+
+    // fn layouts_equal(lhs: &LayoutJob, rhs: &LayoutJob) -> bool {
+    //     lhs.sections == rhs.sections
+    // }
+
+    #[test]
+    fn default_layout_when_empty_text() {
+        let matched_groups = vec![vec![]];
+        let set_layout = set_layout("", &matched_groups, None);
+        let expected_layout = LayoutJob::default();
+
+        assert_eq!(set_layout, expected_layout);
+    }
+
+    #[test]
+    fn single_group() {
+        let matched_groups = vec![vec![MatchGroup {
+            name: String::from("0"),
+            capture: String::from("234"),
+            start: 1,
+            end: 3,
+        }]];
+        let set_layout = set_layout("12345", &matched_groups, None);
+        let expected_layout = LayoutJob {
+            sections: vec![
+                LayoutSection {
+                    leading_space: 0.0,
+                    byte_range: 0..1,
+                    format: egui::TextFormat {
+                        ..Default::default()
+                    },
+                },
+                LayoutSection {
+                    leading_space: 0.0,
+                    byte_range: 1..4,
+                    format: egui::TextFormat {
+                        background: Color32::DARK_BLUE,
+                        ..Default::default()
+                    },
+                },
+                LayoutSection {
+                    leading_space: 0.0,
+                    byte_range: 4..6,
+                    format: egui::TextFormat {
+                        ..Default::default()
+                    },
+                },
+            ],
+
+            ..Default::default()
+        };
+
+        assert_eq!(set_layout.sections, expected_layout.sections);
+    }
 }
