@@ -1,9 +1,9 @@
 mod app;
 pub use app::App;
 
-mod captures;
+pub mod captures;
 mod colors;
-mod layout;
+pub mod layout;
 
 #[derive(Debug)]
 pub struct MatchGroup {

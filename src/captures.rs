@@ -22,7 +22,7 @@ impl Captures2 {
         self.regex.is_some()
     }
 
-    pub fn collect_captures_iteratively(&mut self, text: &str) {
+    pub fn collect_captures_iteratively(&mut self, haystack: &str) {
         self.matched_groups.clear(); // TODO: needed here?
 
         if let Some(regex) = &self.regex {
@@ -34,12 +34,14 @@ impl Captures2 {
                     .last()
                     .map_or(0, |g| g.first().unwrap().end); // TODO: unwrap
 
+                let haystack = &haystack[start_from..];
+                if haystack.is_empty() {
+                    break;
+                }
+
                 let mut matched_groups = Vec::new();
                 let mut locs = regex.capture_locations();
-                if regex
-                    .captures_read(&mut locs, &text[start_from..])
-                    .is_some()
-                {
+                if regex.captures_read(&mut locs, haystack).is_some() {
                     for (idx, capture_name) in capture_names.iter().enumerate() {
                         let name = capture_name
                             .map(str::to_string)
@@ -48,7 +50,7 @@ impl Captures2 {
                         let (start, end) = locs.get(idx).unwrap();
                         matched_groups.push(MatchGroup {
                             name,
-                            capture: text[start + start_from..end + start_from].to_string(),
+                            capture: haystack[start + start_from..end + start_from].to_string(),
                             start: start + start_from,
                             end: end + start_from,
                         });
