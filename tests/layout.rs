@@ -29,9 +29,28 @@ fn section_colored(range: Range<usize>) -> LayoutSection {
 
 #[test]
 fn no_match() {
+    let pattern = "Goodbye world";
     let haystack = "Hello world";
     let mut captures = Captures2::default();
-    captures.compile_regex("Goodbye world");
+    captures.compile_regex(pattern);
+    captures.collect_captures(haystack, true);
+
+    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let expected_layout = LayoutJob {
+        sections: vec![section(0..11)],
+        text: haystack.to_string(),
+        ..Default::default()
+    };
+
+    assert_eq!(set_layout, expected_layout);
+}
+
+#[test]
+fn empty_pattern() {
+    let pattern = "";
+    let haystack = "Hello world";
+    let mut captures = Captures2::default();
+    captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
     let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
@@ -46,9 +65,10 @@ fn no_match() {
 
 #[test]
 fn full_match() {
+    let pattern = "Hello world";
     let haystack = "Hello world";
     let mut captures = Captures2::default();
-    captures.compile_regex("Hello world");
+    captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
     let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
@@ -63,9 +83,10 @@ fn full_match() {
 
 #[test]
 fn default_layout_when_empty_haystack() {
+    let pattern = ".*";
     let haystack = "";
     let mut captures = Captures2::default();
-    captures.compile_regex(".*");
+    captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
     let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
@@ -76,9 +97,10 @@ fn default_layout_when_empty_haystack() {
 
 #[test]
 fn single_group() {
+    let pattern = "234";
     let haystack = "12345";
     let mut captures = Captures2::default();
-    captures.compile_regex("234");
+    captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
     let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
@@ -92,13 +114,12 @@ fn single_group() {
     assert_eq!(set_layout, expected_layout);
 }
 
-// TODO: test case with pattern `.` searched iteratively
-
 #[test]
 fn dot_pattern_non_iteratively() {
+    let pattern = ".";
     let haystack = "abc";
     let mut captures = Captures2::default();
-    captures.compile_regex(".");
+    captures.compile_regex(pattern);
     captures.collect_captures(haystack, false);
 
     let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
@@ -114,9 +135,10 @@ fn dot_pattern_non_iteratively() {
 
 #[test]
 fn dot_pattern_iteratively() {
+    let pattern = ".";
     let haystack = "abc";
     let mut captures = Captures2::default();
-    captures.compile_regex(".");
+    captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
     let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);

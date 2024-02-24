@@ -9,8 +9,14 @@ pub struct Captures2 {
 }
 
 impl Captures2 {
-    pub fn compile_regex(&mut self, regex_str: &str) {
-        if let Ok(regex) = Regex::new(regex_str) {
+    pub fn compile_regex(&mut self, pattern: &str) {
+        if pattern.is_empty() {
+            self.regex = None;
+            self.matched_groups.clear();
+            return;
+        }
+
+        if let Ok(regex) = Regex::new(pattern) {
             self.regex = Some(regex);
         } else {
             self.regex = None;
