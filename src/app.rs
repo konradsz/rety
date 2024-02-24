@@ -1,7 +1,12 @@
 use egui::{Color32, RichText, Stroke, TextEdit, TextStyle};
 
-use crate::{captures::Captures2, colors::COLORS, layout};
+use crate::{
+    captures::{Captures2, RegexState},
+    colors::COLORS,
+    layout,
+};
 
+const EMPTY_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_BLUE;
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
 const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
 
@@ -93,10 +98,10 @@ impl eframe::App for App {
             ui.vertical_centered(|ui| {
                 ui.monospace("Pattern:");
 
-                let regex_field_color = if self.captures.is_regex_valid() {
-                    CORRECT_REGEX_COLOR
-                } else {
-                    INCORRECT_REGEX_COLOR
+                let regex_field_color = match self.captures.get_regex_state() {
+                    RegexState::Empty => EMPTY_REGEX_COLOR,
+                    RegexState::Valid(_) => CORRECT_REGEX_COLOR,
+                    RegexState::Invalid => INCORRECT_REGEX_COLOR,
                 };
 
                 let stroke = Stroke::new(2.0, regex_field_color);

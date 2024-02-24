@@ -3,35 +3,43 @@ use regex::Regex;
 use crate::MatchGroup;
 
 #[derive(Default)]
+pub enum RegexState {
+    #[default]
+    Empty,
+    Valid(Regex),
+    Invalid,
+}
+
+#[derive(Default)]
 pub struct Captures2 {
-    regex: Option<Regex>,
+    regex_state: RegexState,
     matched_groups: Vec<Vec<MatchGroup>>,
 }
 
 impl Captures2 {
     pub fn compile_regex(&mut self, pattern: &str) {
         if pattern.is_empty() {
-            self.regex = None;
+            self.regex_state = RegexState::Empty;
             self.matched_groups.clear();
             return;
         }
 
         if let Ok(regex) = Regex::new(pattern) {
-            self.regex = Some(regex);
+            self.regex_state = RegexState::Valid(regex);
         } else {
-            self.regex = None;
+            self.regex_state = RegexState::Invalid;
             self.matched_groups.clear();
         }
     }
 
-    pub fn is_regex_valid(&self) -> bool {
-        self.regex.is_some()
+    pub fn get_regex_state(&self) -> &RegexState {
+        &self.regex_state
     }
 
     pub fn collect_captures(&mut self, haystack: &str, iteratively: bool) {
         self.matched_groups.clear(); // TODO: needed here?
 
-        if let Some(regex) = &self.regex {
+        if let RegexState::Valid(regex) = &self.regex_state {
             let capture_names = regex.capture_names().collect::<Vec<_>>(); // TODO: do it when pattern changed
 
             loop {
