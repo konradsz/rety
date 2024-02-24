@@ -93,3 +93,43 @@ fn single_group() {
 }
 
 // TODO: test case with pattern `.` searched iteratively
+
+#[test]
+fn dot_pattern_non_iteratively() {
+    let haystack = "abc";
+    let mut captures = Captures2::default();
+    captures.compile_regex(".");
+    captures.collect_captures(haystack, false);
+
+    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+
+    let expected_layout = LayoutJob {
+        sections: vec![section_colored(0..1), section(1..3)],
+        text: haystack.to_string(),
+        ..Default::default()
+    };
+
+    assert_eq!(set_layout, expected_layout);
+}
+
+#[test]
+fn dot_pattern_iteratively() {
+    let haystack = "abc";
+    let mut captures = Captures2::default();
+    captures.compile_regex(".");
+    captures.collect_captures(haystack, true);
+
+    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+
+    let expected_layout = LayoutJob {
+        sections: vec![
+            section_colored(0..1),
+            section_colored(1..2),
+            section_colored(2..3),
+        ],
+        text: haystack.to_string(),
+        ..Default::default()
+    };
+
+    assert_eq!(set_layout, expected_layout);
+}

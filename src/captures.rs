@@ -50,7 +50,7 @@ impl Captures2 {
                         let (start, end) = locs.get(idx).unwrap();
                         matched_groups.push(MatchGroup {
                             name,
-                            capture: haystack[start + start_from..end + start_from].to_string(),
+                            capture: haystack[start..end].to_string(),
                             start: start + start_from,
                             end: end + start_from,
                         });
