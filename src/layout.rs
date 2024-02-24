@@ -52,13 +52,15 @@ pub fn set_layout(
     }
 
     // print the rest of the text or the whole text if no groups were found
-    layout_job.append(
-        &haystack[starting_index..],
-        0.0,
-        egui::TextFormat {
-            ..Default::default()
-        },
-    );
+    if starting_index < haystack.len() {
+        layout_job.append(
+            &haystack[starting_index..],
+            0.0,
+            egui::TextFormat {
+                ..Default::default()
+            },
+        );
+    }
 
     layout_job
 }
@@ -70,13 +72,16 @@ fn highlight_group(
     color: Color32,
     start_index: usize,
 ) {
-    layout_job.append(
-        &text[start_index..group.start],
-        0.0,
-        egui::TextFormat {
-            ..Default::default()
-        },
-    );
+    if start_index < group.start {
+        layout_job.append(
+            &text[start_index..group.start],
+            0.0,
+            egui::TextFormat {
+                ..Default::default()
+            },
+        );
+    }
+
     layout_job.append(
         &group.capture,
         0.0,

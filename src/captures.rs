@@ -22,7 +22,7 @@ impl Captures2 {
         self.regex.is_some()
     }
 
-    pub fn collect_captures_iteratively(&mut self, haystack: &str) {
+    pub fn collect_captures(&mut self, haystack: &str, iteratively: bool) {
         self.matched_groups.clear(); // TODO: needed here?
 
         if let Some(regex) = &self.regex {
@@ -57,6 +57,10 @@ impl Captures2 {
                     }
                     self.matched_groups.push(matched_groups);
                 } else {
+                    break;
+                }
+
+                if !iteratively {
                     break;
                 }
             }

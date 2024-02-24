@@ -34,7 +34,7 @@ impl App {
             let mut app: App = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
 
             app.captures.compile_regex(&app.regex_str);
-            app.captures.collect_captures_iteratively(&app.text);
+            app.captures.collect_captures(&app.text, true);
 
             return app;
         }
@@ -113,7 +113,7 @@ impl eframe::App for App {
                     .changed()
                 {
                     self.captures.compile_regex(&self.regex_str);
-                    self.captures.collect_captures_iteratively(&self.text);
+                    self.captures.collect_captures(&self.text, true);
                 }
             });
 
@@ -140,7 +140,7 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    self.captures.collect_captures_iteratively(&self.text);
+                    self.captures.collect_captures(&self.text, true);
                 }
             });
 

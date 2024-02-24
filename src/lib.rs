@@ -8,7 +8,7 @@ pub mod layout;
 #[derive(Debug)]
 pub struct MatchGroup {
     name: String,
-    capture: String, // TODO: can get rid of it
+    capture: String,
     start: usize,
     end: usize,
 }
