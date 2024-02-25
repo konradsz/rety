@@ -62,12 +62,12 @@ impl Captures2 {
                             .unwrap_or_else(|| idx.to_string());
 
                         let (start, end) = locs.get(idx).unwrap();
-                        matched_groups.push(MatchGroup {
+                        matched_groups.push(MatchGroup::new(
                             name,
-                            capture: haystack[start..end].to_string(),
-                            start: start + start_from,
-                            end: end + start_from,
-                        });
+                            haystack[start..end].to_string(),
+                            start + start_from,
+                            end + start_from,
+                        ));
                     }
                     self.matched_groups.push(matched_groups);
                 } else {

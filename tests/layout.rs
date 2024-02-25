@@ -155,3 +155,49 @@ fn dot_pattern_iteratively() {
 
     assert_eq!(set_layout, expected_layout);
 }
+
+#[test]
+fn named_groups_non_iteratively() {
+    let pattern = r#"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})"#;
+    let haystack = "1973-01-05, 1975-08-25 and 1980-10-18";
+    let mut captures = Captures2::default();
+    captures.compile_regex(pattern);
+    captures.collect_captures(haystack, false);
+
+    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+
+    let expected_layout = LayoutJob {
+        sections: vec![section_colored(0..10), section(10..37)],
+        text: haystack.to_string(),
+        ..Default::default()
+    };
+
+    assert_eq!(set_layout, expected_layout);
+}
+
+#[test]
+fn named_groups_iteratively() {
+    let pattern = r#"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})"#;
+    let haystack = "1973-01-05, 1975-08-25 and 1980-10-18";
+    let mut captures = Captures2::default();
+    captures.compile_regex(pattern);
+    captures.collect_captures(haystack, true);
+
+    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+
+    let expected_layout = LayoutJob {
+        sections: vec![
+            section_colored(0..10),
+            section(10..12),
+            section_colored(12..22),
+            section(22..27),
+            section_colored(27..37),
+        ],
+        text: haystack.to_string(),
+        ..Default::default()
+    };
+
+    assert_eq!(set_layout, expected_layout);
+}
+
+// TODO: test with whitespace
