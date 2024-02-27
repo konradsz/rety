@@ -6,7 +6,6 @@ use crate::{
     layout,
 };
 
-const EMPTY_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_BLUE;
 const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
 const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
 
@@ -107,16 +106,21 @@ impl eframe::App for App {
 
                 ui.monospace("Pattern:");
 
-                let regex_field_color = match self.captures.get_regex_state() {
-                    RegexState::Empty => EMPTY_REGEX_COLOR,
-                    RegexState::Valid(_) => CORRECT_REGEX_COLOR,
-                    RegexState::Invalid => INCORRECT_REGEX_COLOR,
+                match self.captures.get_regex_state() {
+                    RegexState::Empty => (),
+                    RegexState::Valid(_) => {
+                        let stroke = Stroke::new(2.0, CORRECT_REGEX_COLOR);
+                        ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
+                        ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
+                        ui.visuals_mut().selection.stroke = stroke;
+                    }
+                    RegexState::Invalid => {
+                        let stroke = Stroke::new(2.0, INCORRECT_REGEX_COLOR);
+                        ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
+                        ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
+                        ui.visuals_mut().selection.stroke = stroke;
+                    }
                 };
-
-                let stroke = Stroke::new(2.0, regex_field_color);
-                ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
-                ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
-                ui.visuals_mut().selection.stroke = stroke;
 
                 if ui
                     .add(
