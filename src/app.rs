@@ -15,6 +15,7 @@ const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
 pub struct App {
     regex_str: String,
     text: String,
+    iteratively: bool,
     #[serde(skip)]
     hovered_group_index: Option<usize>,
     #[serde(skip)]
@@ -27,6 +28,7 @@ impl Default for App {
         Self {
             regex_str: regex_str.to_string(),
             text: "Hello world".to_string(),
+            iteratively: false,
             hovered_group_index: None,
             captures: Captures2::default(),
         }
@@ -39,7 +41,7 @@ impl App {
             let mut app: App = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
 
             app.captures.compile_regex(&app.regex_str);
-            app.captures.collect_captures(&app.text, true);
+            app.captures.collect_captures(&app.text, app.iteratively);
 
             return app;
         }
@@ -96,6 +98,13 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
+                if ui
+                    .checkbox(&mut self.iteratively, "Search iteratively")
+                    .changed()
+                {
+                    self.captures.collect_captures(&self.text, self.iteratively);
+                }
+
                 ui.monospace("Pattern:");
 
                 let regex_field_color = match self.captures.get_regex_state() {
@@ -118,7 +127,7 @@ impl eframe::App for App {
                     .changed()
                 {
                     self.captures.compile_regex(&self.regex_str);
-                    self.captures.collect_captures(&self.text, true);
+                    self.captures.collect_captures(&self.text, self.iteratively);
                 }
             });
 
@@ -145,7 +154,7 @@ impl eframe::App for App {
                     )
                     .changed()
                 {
-                    self.captures.collect_captures(&self.text, true);
+                    self.captures.collect_captures(&self.text, self.iteratively);
                 }
             });
 
