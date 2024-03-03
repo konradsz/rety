@@ -104,7 +104,7 @@ impl eframe::App for App {
                     self.captures.collect_captures(&self.text, self.iteratively);
                 }
 
-                ui.monospace("Pattern:");
+                ui.label(RichText::new("Pattern:").monospace().strong());
 
                 match self.captures.get_regex_state() {
                     RegexState::Empty => (),
@@ -138,7 +138,7 @@ impl eframe::App for App {
             ui.add_space(10.0);
 
             ui.vertical_centered(|ui| {
-                ui.monospace("Haystack: ");
+                ui.label(RichText::new("Haystack:").monospace().strong());
 
                 let matched_groups = self.captures.matched_groups();
                 let hovered_group_index = self.hovered_group_index;
