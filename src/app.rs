@@ -1,4 +1,5 @@
-use egui::{Color32, RichText, Stroke, TextEdit, TextStyle};
+use egui::{Color32, Label, RichText, Stroke, TextEdit, TextStyle};
+use egui_extras::Column;
 
 use crate::{
     captures::{Captures2, RegexState},
@@ -49,8 +50,6 @@ impl App {
     }
 
     fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
-        self.hovered_group_index = None;
-
         // transpose the matched groups
         let s = self
             .captures
@@ -64,28 +63,46 @@ impl App {
             }
         }
 
-        for (idx, group) in transposed.iter().enumerate() {
-            let text = RichText::new(format!(
-                "{}: {}",
-                group[0].name,
-                group
-                    .iter()
-                    .map(|g| g.capture.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ))
-            .monospace()
-            .color(COLORS[idx % COLORS.len()]);
-
-            // TODO: not working :(
-            ui.visuals_mut().widgets.hovered.fg_stroke.color = Color32::WHITE;
-            ui.visuals_mut().widgets.hovered.bg_fill = Color32::WHITE;
-
-            if ui.label(text).hovered() {
-                ui.visuals_mut().widgets.hovered.bg_fill = Color32::WHITE;
-                self.hovered_group_index = Some(idx);
-            }
+        if let Some(ii) = self.hovered_group_index {
+            ui.visuals_mut().widgets.hovered.bg_fill = COLORS[ii % COLORS.len()];
         }
+        self.hovered_group_index = None;
+
+        let mut table_builder = egui_extras::TableBuilder::new(ui)
+            .striped(true)
+            .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+            .column(Column::exact(100.0))
+            .column(Column::exact(100.0));
+        table_builder = table_builder.sense(egui::Sense::click());
+        let table = table_builder.header(20.0, |mut header| {
+            header.col(|ui| {
+                ui.strong("name"); // TODO monosapce strong ?
+            });
+            header.col(|ui| {
+                ui.strong("match"); // TODO monospace strong ?
+            });
+        });
+        table.body(|mut body| {
+            for (idx, group) in transposed.iter().enumerate() {
+                body.row(20.0, |mut row| {
+                    row.col(|ui| {
+                        ui.label(&group[0].name);
+                    });
+                    row.col(|ui| {
+                        let matches = group
+                            .iter()
+                            .map(|g| g.capture.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ");
+                        ui.label(matches);
+                    });
+
+                    if row.response().hovered() {
+                        self.hovered_group_index = Some(idx);
+                    }
+                });
+            }
+        });
     }
 }
 
