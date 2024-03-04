@@ -1,4 +1,4 @@
-use egui::{Color32, Label, RichText, Stroke, TextEdit, TextStyle};
+use egui::{RichText, Stroke, TextEdit, TextStyle};
 use egui_extras::Column;
 
 use crate::{
@@ -72,14 +72,14 @@ impl App {
             .striped(true)
             .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
             .column(Column::exact(100.0))
-            .column(Column::exact(100.0));
+            .column(Column::exact(200.0));
         table_builder = table_builder.sense(egui::Sense::click());
         let table = table_builder.header(20.0, |mut header| {
             header.col(|ui| {
-                ui.strong("name"); // TODO monosapce strong ?
+                ui.label(RichText::new("name").monospace().strong());
             });
             header.col(|ui| {
-                ui.strong("match"); // TODO monospace strong ?
+                ui.label(RichText::new("match").monospace().strong());
             });
         });
         table.body(|mut body| {
