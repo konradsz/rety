@@ -1,6 +1,8 @@
-use egui::{text::LayoutJob, Color32};
+use egui::{text::LayoutJob, Color32, FontFamily, FontId};
 
 use crate::MatchGroup;
+
+pub const FONT_SIZE: f32 = 12.0;
 
 pub fn set_layout(
     haystack: &str,
@@ -33,6 +35,10 @@ pub fn set_layout(
                         &haystack[hovered_group.start + hovered_group.capture.len()..g.end],
                         0.0,
                         egui::TextFormat {
+                            font_id: FontId {
+                                family: FontFamily::Monospace,
+                                size: FONT_SIZE,
+                            },
                             ..Default::default()
                         },
                     );
@@ -57,6 +63,10 @@ pub fn set_layout(
             &haystack[starting_index..],
             0.0,
             egui::TextFormat {
+                font_id: FontId {
+                    family: FontFamily::Monospace,
+                    size: FONT_SIZE,
+                },
                 ..Default::default()
             },
         );
@@ -77,6 +87,10 @@ fn highlight_group(
             &text[start_index..group.start],
             0.0,
             egui::TextFormat {
+                font_id: FontId {
+                    family: FontFamily::Monospace,
+                    size: FONT_SIZE,
+                },
                 ..Default::default()
             },
         );
@@ -86,6 +100,10 @@ fn highlight_group(
         &group.capture,
         0.0,
         egui::TextFormat {
+            font_id: FontId {
+                family: FontFamily::Monospace,
+                size: FONT_SIZE,
+            },
             background: color,
             ..Default::default()
         },

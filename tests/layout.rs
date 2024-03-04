@@ -2,15 +2,22 @@ use std::ops::Range;
 
 use egui::{
     text::{LayoutJob, LayoutSection},
-    Color32,
+    Color32, FontId,
 };
-use regex_wasm::{captures::Captures2, layout};
+use regex_wasm::{
+    captures::Captures2,
+    layout::{self, FONT_SIZE},
+};
 
 fn section(range: Range<usize>) -> LayoutSection {
     LayoutSection {
         leading_space: 0.0,
         byte_range: range,
         format: egui::TextFormat {
+            font_id: FontId {
+                family: egui::FontFamily::Monospace,
+                size: FONT_SIZE,
+            },
             ..Default::default()
         },
     }
@@ -22,6 +29,10 @@ fn section_colored(range: Range<usize>) -> LayoutSection {
         byte_range: range,
         format: egui::TextFormat {
             background: Color32::DARK_BLUE,
+            font_id: FontId {
+                family: egui::FontFamily::Monospace,
+                size: FONT_SIZE,
+            },
             ..Default::default()
         },
     }

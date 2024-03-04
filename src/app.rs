@@ -86,7 +86,7 @@ impl App {
             for (idx, group) in transposed.iter().enumerate() {
                 body.row(20.0, |mut row| {
                     row.col(|ui| {
-                        ui.label(&group[0].name);
+                        ui.monospace(&group[0].name);
                     });
                     row.col(|ui| {
                         let matches = group
@@ -94,7 +94,7 @@ impl App {
                             .map(|g| g.capture.as_str())
                             .collect::<Vec<_>>()
                             .join(", ");
-                        ui.label(matches);
+                        ui.monospace(matches);
                     });
 
                     if row.response().hovered() {
@@ -169,7 +169,6 @@ impl eframe::App for App {
                 if ui
                     .add(
                         TextEdit::singleline(&mut self.text)
-                            .font(TextStyle::Monospace)
                             .hint_text("Hello world")
                             .layouter(&mut layouter),
                     )
@@ -178,6 +177,8 @@ impl eframe::App for App {
                     self.captures.collect_captures(&self.text, self.iteratively);
                 }
             });
+
+            ui.add_space(10.0);
 
             self.draw_matched_groups(ui);
         });
