@@ -2,8 +2,8 @@ use egui::{RichText, Stroke, TextEdit, TextStyle};
 use egui_extras::Column;
 
 use crate::{
-    captures::{Captures2, RegexState},
     colors::COLORS,
+    group_captures::{GroupCaptures, RegexState},
     layout,
 };
 
@@ -19,7 +19,7 @@ pub struct App {
     #[serde(skip)]
     hovered_group_index: Option<usize>,
     #[serde(skip)]
-    captures: Captures2,
+    captures: GroupCaptures,
 }
 
 impl Default for App {
@@ -30,7 +30,7 @@ impl Default for App {
             text: "Hello world".to_string(),
             iteratively: false,
             hovered_group_index: None,
-            captures: Captures2::default(),
+            captures: GroupCaptures::default(),
         }
     }
 }

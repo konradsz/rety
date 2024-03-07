@@ -1,8 +1,8 @@
 mod app;
 pub use app::App;
 
-pub mod captures;
 pub mod colors;
+pub mod group_captures;
 pub mod layout;
 
 #[derive(Debug, PartialEq, Eq)]

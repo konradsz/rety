@@ -1,10 +1,10 @@
-use regex_wasm::{captures::Captures2, MatchGroup};
+use regex_wasm::{group_captures::GroupCaptures, MatchGroup};
 
 #[test]
 fn named_groups_non_iteratively() {
     let pattern = r#"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})"#;
     let haystack = "1973-01-05, 1975-08-25 and 1980-10-18";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, false);
 
@@ -22,7 +22,7 @@ fn named_groups_non_iteratively() {
 fn named_groups_iteratively() {
     let pattern = r#"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})"#;
     let haystack = "1973-01-05, 1975-08-25 and 1980-10-18";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 

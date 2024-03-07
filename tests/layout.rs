@@ -5,8 +5,8 @@ use egui::{
     FontId,
 };
 use regex_wasm::{
-    captures::Captures2,
     colors::DEFAULT_COLOR,
+    group_captures::GroupCaptures,
     layout::{self, FONT_SIZE},
 };
 
@@ -43,7 +43,7 @@ fn section_colored(range: Range<usize>) -> LayoutSection {
 fn no_match() {
     let pattern = "Goodbye world";
     let haystack = "Hello world";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -61,7 +61,7 @@ fn no_match() {
 fn empty_pattern() {
     let pattern = "";
     let haystack = "Hello world";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -79,7 +79,7 @@ fn empty_pattern() {
 fn full_match() {
     let pattern = "Hello world";
     let haystack = "Hello world";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -97,7 +97,7 @@ fn full_match() {
 fn default_layout_when_empty_haystack() {
     let pattern = ".*";
     let haystack = "";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -111,7 +111,7 @@ fn default_layout_when_empty_haystack() {
 fn single_group() {
     let pattern = "234";
     let haystack = "12345";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -130,7 +130,7 @@ fn single_group() {
 fn dot_pattern_non_iteratively() {
     let pattern = ".";
     let haystack = "abc";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, false);
 
@@ -149,7 +149,7 @@ fn dot_pattern_non_iteratively() {
 fn dot_pattern_iteratively() {
     let pattern = ".";
     let haystack = "abc";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -172,7 +172,7 @@ fn dot_pattern_iteratively() {
 fn named_groups_non_iteratively() {
     let pattern = r#"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})"#;
     let haystack = "1973-01-05, 1975-08-25 and 1980-10-18";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, false);
 
@@ -191,7 +191,7 @@ fn named_groups_non_iteratively() {
 fn named_groups_iteratively() {
     let pattern = r#"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})"#;
     let haystack = "1973-01-05, 1975-08-25 and 1980-10-18";
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
@@ -221,7 +221,7 @@ groundhog 2 true
 does not match
 fox   109    false";
 
-    let mut captures = Captures2::default();
+    let mut captures = GroupCaptures::default();
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 

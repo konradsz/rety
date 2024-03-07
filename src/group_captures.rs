@@ -11,12 +11,12 @@ pub enum RegexState {
 }
 
 #[derive(Default)]
-pub struct Captures2 {
+pub struct GroupCaptures {
     regex_state: RegexState,
     matched_groups: Vec<Vec<MatchGroup>>,
 }
 
-impl Captures2 {
+impl GroupCaptures {
     pub fn compile_regex(&mut self, pattern: &str) {
         if pattern.is_empty() {
             self.regex_state = RegexState::Empty;
