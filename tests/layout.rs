@@ -2,10 +2,11 @@ use std::ops::Range;
 
 use egui::{
     text::{LayoutJob, LayoutSection},
-    Color32, FontId,
+    FontId,
 };
 use regex_wasm::{
     captures::Captures2,
+    colors::DEFAULT_COLOR,
     layout::{self, FONT_SIZE},
 };
 
@@ -28,7 +29,7 @@ fn section_colored(range: Range<usize>) -> LayoutSection {
         leading_space: 0.0,
         byte_range: range,
         format: egui::TextFormat {
-            background: Color32::DARK_BLUE,
+            background: DEFAULT_COLOR,
             font_id: FontId {
                 family: egui::FontFamily::Monospace,
                 size: FONT_SIZE,

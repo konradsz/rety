@@ -2,7 +2,7 @@ mod app;
 pub use app::App;
 
 pub mod captures;
-mod colors;
+pub mod colors;
 pub mod layout;
 
 #[derive(Debug, PartialEq, Eq)]

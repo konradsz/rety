@@ -76,10 +76,18 @@ impl App {
         table_builder = table_builder.sense(egui::Sense::click());
         let table = table_builder.header(20.0, |mut header| {
             header.col(|ui| {
-                ui.label(RichText::new("Group name").monospace().strong());
+                ui.label(RichText::new("Group name").monospace().strong()).on_hover_text(
+                    "The name of the group. If the group is unnamed, the index of the group is used instead."
+                );
             });
+
+            let matches_column_label = if self.iteratively {
+                "Matches"
+            } else {
+                "Match"
+            };
             header.col(|ui| {
-                ui.label(RichText::new("Matches").monospace().strong());
+                ui.label(RichText::new(matches_column_label).monospace().strong());
             });
         });
         table.body(|mut body| {
