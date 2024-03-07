@@ -27,7 +27,7 @@ impl Default for App {
         let regex_str = ".*"; // TODO: rethink
         Self {
             regex_str: regex_str.to_string(),
-            text: "Hello world".to_string(),
+            text: "Hello world!".to_string(),
             iteratively: false,
             hovered_group_index: None,
             captures: GroupCaptures::default(),
@@ -177,7 +177,7 @@ impl eframe::App for App {
                 if ui
                     .add(
                         TextEdit::multiline(&mut self.text)
-                            .hint_text("Hello world")
+                            .hint_text("Hello world!")
                             .layouter(&mut layouter),
                     )
                     .changed()

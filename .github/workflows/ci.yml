@@ -14,7 +14,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.76.0
           override: true
 
       - name: Run cargo check
@@ -33,7 +32,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.76.0
           override: true
 
       - name: Run cargo test
@@ -52,7 +50,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.76.0
           override: true
           components: rustfmt, clippy
 
