@@ -51,12 +51,12 @@ impl App {
 
     fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
         // transpose the matched groups
-        let s = self
+        let matched_groups_count = self
             .captures
             .matched_groups()
             .first()
-            .map_or(0, |gs| gs.len());
-        let mut transposed = vec![Vec::new(); s];
+            .map_or(0, |groups| groups.len());
+        let mut transposed = vec![Vec::new(); matched_groups_count];
         for groups in self.captures.matched_groups() {
             for (idx, group) in groups.iter().enumerate() {
                 transposed[idx].push(group);
@@ -76,10 +76,10 @@ impl App {
         table_builder = table_builder.sense(egui::Sense::click());
         let table = table_builder.header(20.0, |mut header| {
             header.col(|ui| {
-                ui.label(RichText::new("name").monospace().strong());
+                ui.label(RichText::new("Group name").monospace().strong());
             });
             header.col(|ui| {
-                ui.label(RichText::new("match").monospace().strong());
+                ui.label(RichText::new("Matches").monospace().strong());
             });
         });
         table.body(|mut body| {
