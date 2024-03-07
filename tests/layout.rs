@@ -212,4 +212,31 @@ fn named_groups_iteratively() {
     assert_eq!(set_layout, expected_layout);
 }
 
-// TODO: test with whitespace
+#[test]
+fn multiline_haystack() {
+    let pattern = r#"(?m)^\s*(\S+)\s+([0-9]+)\s+(true|false)\s*$"#;
+    let haystack = "
+rabbit         54 true
+groundhog 2 true
+does not match
+fox   109    false";
+
+    let mut captures = Captures2::default();
+    captures.compile_regex(pattern);
+    captures.collect_captures(haystack, true);
+
+    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+
+    let expected_layout = LayoutJob {
+        sections: vec![
+            section_colored(0..23),
+            section_colored(23..40),
+            section(40..56),
+            section_colored(56..74),
+        ],
+        text: haystack.to_string(),
+        ..Default::default()
+    };
+
+    assert_eq!(set_layout, expected_layout);
+}
