@@ -47,7 +47,7 @@ fn no_match() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
     let expected_layout = LayoutJob {
         sections: vec![section(0..11)],
         text: haystack.to_string(),
@@ -65,7 +65,7 @@ fn empty_pattern() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
     let expected_layout = LayoutJob {
         sections: vec![section(0..11)],
         text: haystack.to_string(),
@@ -83,7 +83,7 @@ fn full_match() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
     let expected_layout = LayoutJob {
         sections: vec![section_colored(0..11)],
         text: haystack.to_string(),
@@ -101,7 +101,7 @@ fn default_layout_when_empty_haystack() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
     let expected_layout = LayoutJob::default();
 
     assert_eq!(set_layout, expected_layout);
@@ -115,7 +115,7 @@ fn single_group() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
 
     let expected_layout = LayoutJob {
         sections: vec![section(0..1), section_colored(1..4), section(4..5)],
@@ -134,7 +134,7 @@ fn dot_pattern_non_iteratively() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, false);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
 
     let expected_layout = LayoutJob {
         sections: vec![section_colored(0..1), section(1..3)],
@@ -153,7 +153,7 @@ fn dot_pattern_iteratively() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
 
     let expected_layout = LayoutJob {
         sections: vec![
@@ -176,7 +176,7 @@ fn named_groups_non_iteratively() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, false);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
 
     let expected_layout = LayoutJob {
         sections: vec![section_colored(0..10), section(10..37)],
@@ -195,7 +195,7 @@ fn named_groups_iteratively() {
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
 
     let expected_layout = LayoutJob {
         sections: vec![
@@ -225,7 +225,7 @@ fox   109    false";
     captures.compile_regex(pattern);
     captures.collect_captures(haystack, true);
 
-    let set_layout = layout::set_layout(haystack, &captures.matched_groups(), None);
+    let set_layout = layout::set_layout(haystack, captures.matched_groups(), None);
 
     let expected_layout = LayoutJob {
         sections: vec![
