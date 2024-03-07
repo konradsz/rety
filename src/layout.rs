@@ -1,6 +1,9 @@
 use egui::{text::LayoutJob, Color32, FontFamily, FontId};
 
-use crate::MatchGroup;
+use crate::{
+    colors::{COLORS, DEFAULT_COLOR},
+    MatchGroup,
+};
 
 pub const FONT_SIZE: f32 = 12.0;
 
@@ -27,7 +30,7 @@ pub fn set_layout(
                         &mut layout_job,
                         haystack,
                         hovered_group,
-                        Color32::DARK_BLUE,
+                        COLORS[hovered_group_index % COLORS.len()],
                         starting_index,
                     );
 
@@ -43,13 +46,7 @@ pub fn set_layout(
                         },
                     );
                 } else {
-                    highlight_group(
-                        &mut layout_job,
-                        haystack,
-                        g,
-                        Color32::DARK_BLUE,
-                        starting_index,
-                    );
+                    highlight_group(&mut layout_job, haystack, g, DEFAULT_COLOR, starting_index);
                 }
 
                 starting_index = g.end;

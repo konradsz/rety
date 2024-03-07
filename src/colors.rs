@@ -1,5 +1,7 @@
 use egui::Color32;
 
+pub const DEFAULT_COLOR: Color32 = Color32::DARK_GREEN;
+
 pub const COLORS: [Color32; 10] = [
     Color32::LIGHT_BLUE,
     Color32::LIGHT_RED,

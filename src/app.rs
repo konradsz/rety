@@ -63,8 +63,8 @@ impl App {
             }
         }
 
-        if let Some(ii) = self.hovered_group_index {
-            ui.visuals_mut().widgets.hovered.bg_fill = COLORS[ii % COLORS.len()];
+        if let Some(index) = self.hovered_group_index {
+            ui.visuals_mut().widgets.hovered.bg_fill = COLORS[index % COLORS.len()];
         }
         self.hovered_group_index = None;
 
@@ -168,7 +168,7 @@ impl eframe::App for App {
 
                 if ui
                     .add(
-                        TextEdit::singleline(&mut self.text)
+                        TextEdit::multiline(&mut self.text)
                             .hint_text("Hello world")
                             .layouter(&mut layouter),
                     )
