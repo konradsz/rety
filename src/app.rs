@@ -63,9 +63,12 @@ impl App {
             }
         }
 
-        if let Some(index) = self.hovered_group_index {
+        let hovered_row = if let Some(index) = self.hovered_group_index {
             ui.visuals_mut().widgets.hovered.bg_fill = COLORS[index % COLORS.len()];
-        }
+            true
+        } else {
+            false
+        };
         self.hovered_group_index = None;
 
         let mut table_builder = egui_extras::TableBuilder::new(ui)
@@ -76,16 +79,13 @@ impl App {
         table_builder = table_builder.sense(egui::Sense::click());
         let table = table_builder.header(20.0, |mut header| {
             header.col(|ui| {
-                ui.label(RichText::new("Group name").monospace().strong()).on_hover_text(
-                    "The name of the group. If the group is unnamed, the index of the group is used instead."
-                );
+                ui.label(RichText::new("Group name").monospace().strong())
+                    .on_hover_text(
+                        "The name of the group. If the group is unnamed, its index used instead.",
+                    );
             });
 
-            let matches_column_label = if self.iteratively {
-                "Matches"
-            } else {
-                "Match"
-            };
+            let matches_column_label = if self.iteratively { "Matches" } else { "Match" };
             header.col(|ui| {
                 ui.label(RichText::new(matches_column_label).monospace().strong());
             });
@@ -97,12 +97,20 @@ impl App {
                         ui.monospace(&group[0].name);
                     });
                     row.col(|ui| {
-                        let matches = group
-                            .iter()
-                            .map(|g| g.capture.as_str())
-                            .collect::<Vec<_>>()
-                            .join(", ");
-                        ui.monospace(matches);
+                        ui.spacing_mut().item_spacing.x = 1.0;
+
+                        for (idx, g) in group.iter().enumerate() {
+                            let text = if hovered_row {
+                                RichText::new(g.capture.as_str())
+                            } else {
+                                RichText::new(g.capture.as_str()).code()
+                            };
+                            ui.monospace(text);
+
+                            if idx < group.len() - 1 {
+                                ui.label(", ");
+                            }
+                        }
                     });
 
                     if row.response().hovered() {
