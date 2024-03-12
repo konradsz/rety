@@ -1,8 +1,8 @@
-use egui::{RichText, Stroke, TextEdit, TextStyle};
+use egui::{Color32, RichText, Stroke, TextEdit, TextStyle, Visuals};
 use egui_extras::Column;
 
 use crate::{
-    colors::COLORS,
+    colors::{self, COLORS},
     group_captures::{GroupCaptures, RegexState},
     layout,
 };
@@ -103,7 +103,8 @@ impl App {
                             let text = if hovered_row {
                                 RichText::new(g.capture.as_str())
                             } else {
-                                RichText::new(g.capture.as_str()).code()
+                                RichText::new(g.capture.as_str())
+                                    .background_color(Color32::from_gray(64))
                             };
                             ui.monospace(text);
 
@@ -120,6 +121,14 @@ impl App {
             }
         });
     }
+
+    fn get_visuals() -> Visuals {
+        let mut visuals = Visuals::default();
+        visuals.panel_fill = colors::BACKGROUND;
+        visuals.extreme_bg_color = colors::TEXT_EDIT_BACKGROUND;
+
+        visuals
+    }
 }
 
 impl eframe::App for App {
@@ -128,6 +137,8 @@ impl eframe::App for App {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.set_visuals(Self::get_visuals());
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 if ui
