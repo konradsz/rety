@@ -7,9 +7,6 @@ use crate::{
     layout,
 };
 
-const CORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_GREEN;
-const INCORRECT_REGEX_COLOR: egui::Color32 = egui::Color32::DARK_RED;
-
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct App {
@@ -141,25 +138,18 @@ impl eframe::App for App {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                if ui
-                    .checkbox(&mut self.iteratively, "Search iteratively")
-                    .changed()
-                {
-                    self.captures.collect_captures(&self.text, self.iteratively);
-                }
-
                 ui.label(RichText::new("Pattern:").monospace().strong());
 
                 match self.captures.get_regex_state() {
                     RegexState::Empty => (),
                     RegexState::Valid(_) => {
-                        let stroke = Stroke::new(2.0, CORRECT_REGEX_COLOR);
+                        let stroke = Stroke::new(2.0, colors::CORRECT_REGEX_COLOR);
                         ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
                         ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
                         ui.visuals_mut().selection.stroke = stroke;
                     }
                     RegexState::Invalid => {
-                        let stroke = Stroke::new(2.0, INCORRECT_REGEX_COLOR);
+                        let stroke = Stroke::new(2.0, colors::INCORRECT_REGEX_COLOR);
                         ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
                         ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
                         ui.visuals_mut().selection.stroke = stroke;
@@ -199,6 +189,15 @@ impl eframe::App for App {
                             .hint_text("Hello world!")
                             .layouter(&mut layouter),
                     )
+                    .changed()
+                {
+                    self.captures.collect_captures(&self.text, self.iteratively);
+                }
+
+                ui.add_space(10.0);
+
+                if ui
+                    .checkbox(&mut self.iteratively, "Search iteratively")
                     .changed()
                 {
                     self.captures.collect_captures(&self.text, self.iteratively);
