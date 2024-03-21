@@ -1,4 +1,4 @@
-use egui::{Color32, RichText, Stroke, TextEdit, TextStyle, Visuals};
+use egui::{Color32, RichText, Stroke, TextEdit, TextStyle, Vec2, Visuals};
 use egui_extras::Column;
 
 use crate::{
@@ -46,6 +46,85 @@ impl App {
         Default::default()
     }
 
+    fn draw_pattern_textbox(&mut self, ui: &mut egui::Ui) {
+        ui.scope(|ui| {
+            ui.label(RichText::new("Pattern").monospace().strong());
+
+            match self.captures.get_regex_state() {
+                RegexState::Empty => (),
+                RegexState::Valid(_) => {
+                    let stroke = Stroke::new(2.0, colors::CORRECT_REGEX_COLOR);
+                    ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
+                    ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
+                    ui.visuals_mut().selection.stroke = stroke;
+                }
+                RegexState::Invalid => {
+                    let stroke = Stroke::new(2.0, colors::INCORRECT_REGEX_COLOR);
+                    ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
+                    ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
+                    ui.visuals_mut().selection.stroke = stroke;
+                }
+            };
+
+            if ui
+                .add(
+                    TextEdit::singleline(&mut self.regex_str)
+                        .font(TextStyle::Monospace)
+                        .desired_width(360.0)
+                        .margin(Vec2::new(5.0, 5.0))
+                        .hint_text(".*"),
+                )
+                .changed()
+            {
+                self.captures.compile_regex(&self.regex_str);
+                self.captures.collect_captures(&self.text, self.iteratively);
+            }
+        });
+    }
+
+    fn draw_haystack_textbox(&mut self, ui: &mut egui::Ui) {
+        ui.scope(|ui| {
+            ui.label(RichText::new("Haystack").monospace().strong());
+
+            let matched_groups = self.captures.matched_groups();
+            let hovered_group_index = self.hovered_group_index;
+            let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
+                let mut layout_job = layout::set_layout(text, matched_groups, hovered_group_index);
+                layout_job.wrap.max_width = wrap_width;
+                ui.fonts(|f| f.layout_job(layout_job))
+            };
+
+            if ui
+                .add(
+                    TextEdit::multiline(&mut self.text)
+                        .desired_width(360.0)
+                        .desired_rows(5)
+                        .margin(Vec2::new(5.0, 5.0))
+                        .layouter(&mut layouter)
+                        .hint_text("Hello world!"),
+                )
+                .changed()
+            {
+                self.captures.collect_captures(&self.text, self.iteratively);
+            }
+
+            ui.add_space(10.0);
+        });
+    }
+
+    fn draw_search_iteratively_checkbox(&mut self, ui: &mut egui::Ui) {
+        ui.scope(|ui| {
+            if ui
+                .checkbox(&mut self.iteratively, "Search iteratively")
+                .changed()
+            {
+                self.captures.collect_captures(&self.text, self.iteratively);
+            }
+
+            ui.add_space(10.0);
+        });
+    }
+
     fn draw_matched_groups(&mut self, ui: &mut egui::Ui) {
         // transpose the matched groups
         let matched_groups_count = self
@@ -71,8 +150,8 @@ impl App {
         let mut table_builder = egui_extras::TableBuilder::new(ui)
             .striped(true)
             .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-            .column(Column::exact(100.0))
-            .column(Column::exact(200.0));
+            .column(Column::exact(110.0))
+            .column(Column::exact(300.0));
         table_builder = table_builder.sense(egui::Sense::click());
         let table = table_builder.header(20.0, |mut header| {
             header.col(|ui| {
@@ -138,75 +217,11 @@ impl eframe::App for App {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                ui.label(RichText::new("Pattern:").monospace().strong());
-
-                match self.captures.get_regex_state() {
-                    RegexState::Empty => (),
-                    RegexState::Valid(_) => {
-                        let stroke = Stroke::new(2.0, colors::CORRECT_REGEX_COLOR);
-                        ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
-                        ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
-                        ui.visuals_mut().selection.stroke = stroke;
-                    }
-                    RegexState::Invalid => {
-                        let stroke = Stroke::new(2.0, colors::INCORRECT_REGEX_COLOR);
-                        ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
-                        ui.visuals_mut().widgets.hovered.bg_stroke = stroke;
-                        ui.visuals_mut().selection.stroke = stroke;
-                    }
-                };
-
-                if ui
-                    .add(
-                        TextEdit::singleline(&mut self.regex_str)
-                            .font(TextStyle::Monospace)
-                            .hint_text(".*"),
-                    )
-                    .changed()
-                {
-                    self.captures.compile_regex(&self.regex_str);
-                    self.captures.collect_captures(&self.text, self.iteratively);
-                }
+                self.draw_pattern_textbox(ui);
+                self.draw_haystack_textbox(ui);
+                self.draw_search_iteratively_checkbox(ui);
+                self.draw_matched_groups(ui);
             });
-
-            ui.add_space(10.0);
-
-            ui.vertical_centered(|ui| {
-                ui.label(RichText::new("Haystack:").monospace().strong());
-
-                let matched_groups = self.captures.matched_groups();
-                let hovered_group_index = self.hovered_group_index;
-                let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
-                    let mut layout_job =
-                        layout::set_layout(text, matched_groups, hovered_group_index);
-                    layout_job.wrap.max_width = wrap_width;
-                    ui.fonts(|f| f.layout_job(layout_job))
-                };
-
-                if ui
-                    .add(
-                        TextEdit::multiline(&mut self.text)
-                            .hint_text("Hello world!")
-                            .layouter(&mut layouter),
-                    )
-                    .changed()
-                {
-                    self.captures.collect_captures(&self.text, self.iteratively);
-                }
-
-                ui.add_space(10.0);
-
-                if ui
-                    .checkbox(&mut self.iteratively, "Search iteratively")
-                    .changed()
-                {
-                    self.captures.collect_captures(&self.text, self.iteratively);
-                }
-            });
-
-            ui.add_space(10.0);
-
-            self.draw_matched_groups(ui);
         });
     }
 }
