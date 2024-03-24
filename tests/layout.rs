@@ -5,9 +5,9 @@ use egui::{
     FontId,
 };
 use regex_wasm::{
-    colors::DEFAULT_COLOR,
     group_captures::GroupCaptures,
-    layout::{self, FONT_SIZE},
+    layout,
+    styles::{DEFAULT_MATCH_COLOR, FONT_SIZE},
 };
 
 fn section(range: Range<usize>) -> LayoutSection {
@@ -29,7 +29,7 @@ fn section_colored(range: Range<usize>) -> LayoutSection {
         leading_space: 0.0,
         byte_range: range,
         format: egui::TextFormat {
-            background: DEFAULT_COLOR,
+            background: DEFAULT_MATCH_COLOR,
             font_id: FontId {
                 family: egui::FontFamily::Monospace,
                 size: FONT_SIZE,

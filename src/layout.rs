@@ -1,11 +1,9 @@
 use egui::{text::LayoutJob, Color32, FontFamily, FontId};
 
 use crate::{
-    colors::{COLORS, DEFAULT_COLOR},
+    styles::{COLORS, DEFAULT_MATCH_COLOR, FONT_SIZE},
     MatchGroup,
 };
-
-pub const FONT_SIZE: f32 = 12.0;
 
 pub fn set_layout(
     haystack: &str,
@@ -16,7 +14,6 @@ pub fn set_layout(
         return LayoutJob::default();
     }
 
-    // TODO: memoize
     let mut layout_job = LayoutJob::default();
 
     let mut starting_index = 0;
@@ -46,7 +43,13 @@ pub fn set_layout(
                         },
                     );
                 } else {
-                    highlight_group(&mut layout_job, haystack, g, DEFAULT_COLOR, starting_index);
+                    highlight_group(
+                        &mut layout_job,
+                        haystack,
+                        g,
+                        DEFAULT_MATCH_COLOR,
+                        starting_index,
+                    );
                 }
 
                 starting_index = g.end;
