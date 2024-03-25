@@ -1,4 +1,4 @@
-use egui::{Color32, FontFamily, FontId, RichText, Rounding, Stroke, TextEdit, Vec2, Visuals};
+use egui::{Color32, FontFamily, FontId, RichText, Stroke, TextEdit, Vec2, Visuals};
 use egui_extras::Column;
 
 use crate::{
@@ -50,25 +50,31 @@ impl App {
             ui.label(RichText::new("Pattern").monospace().strong());
             ui.add_space(3.0);
 
-            let rounding = Rounding::same(5.0);
+            let rounding = styles::TEXT_EDIT_ROUNDING;
             let (active_stroke, inactive_stroke) = match self.captures.get_regex_state() {
                 RegexState::Empty => (
                     Stroke::new(1.0, styles::TEXT_EDIT_ACTIVE_STROKE),
                     Stroke::new(1.0, styles::TEXT_EDIT_INACTIVE_STROKE),
                 ),
                 RegexState::Valid(_) => (
-                    Stroke::new(2.0, styles::CORRECT_REGEX_COLOR),
-                    Stroke::new(2.0, styles::CORRECT_REGEX_COLOR),
+                    Stroke::new(2.0, styles::CORRECT_PATTERN_STROKE_COLOR),
+                    Stroke::new(2.0, styles::CORRECT_PATTERN_STROKE_COLOR),
                 ),
                 RegexState::Invalid => (
-                    Stroke::new(2.0, styles::INCORRECT_REGEX_COLOR),
-                    Stroke::new(2.0, styles::INCORRECT_REGEX_COLOR),
+                    Stroke::new(2.0, styles::INCORRECT_PATTERN_STROKE_COLOR),
+                    Stroke::new(2.0, styles::INCORRECT_PATTERN_STROKE_COLOR),
                 ),
             };
+            let text_edit_background = match self.captures.get_regex_state() {
+                RegexState::Empty => styles::TEXT_EDIT_BACKGROUND,
+                RegexState::Valid(_) => styles::CORRECT_PATTERN_BG_COLOR,
+                RegexState::Invalid => styles::INCORRECT_PATTERN_BG_COLOR,
+            };
+
             ui.visuals_mut().widgets.active.bg_stroke = active_stroke;
             ui.visuals_mut().widgets.active.rounding = rounding;
             ui.visuals_mut().widgets.active.expansion = 0.0;
-            ui.visuals_mut().extreme_bg_color = Color32::from_hex("#142A13").unwrap(); // TODO
+            ui.visuals_mut().extreme_bg_color = text_edit_background;
             ui.visuals_mut().widgets.inactive.bg_stroke = inactive_stroke;
             ui.visuals_mut().widgets.inactive.rounding = rounding;
             ui.visuals_mut().widgets.hovered.bg_stroke = active_stroke;
@@ -83,8 +89,8 @@ impl App {
                             size: styles::FONT_SIZE,
                             family: FontFamily::Monospace,
                         })
-                        .desired_width(360.0)
-                        .margin(Vec2::new(5.0, 5.0)),
+                        .desired_width(450.0)
+                        .margin(Vec2::new(8.0, 5.0)),
                 )
                 .changed()
             {
@@ -109,7 +115,7 @@ impl App {
                 ui.fonts(|f| f.layout_job(layout_job))
             };
 
-            let rounding = Rounding::same(5.0);
+            let rounding = styles::TEXT_EDIT_ROUNDING;
             ui.visuals_mut().widgets.active.bg_stroke =
                 Stroke::new(1.0, styles::TEXT_EDIT_ACTIVE_STROKE);
             ui.visuals_mut().widgets.active.rounding = rounding;
@@ -126,9 +132,9 @@ impl App {
             if ui
                 .add(
                     TextEdit::multiline(&mut self.text)
-                        .desired_width(360.0)
+                        .desired_width(450.0)
                         .desired_rows(5)
-                        .margin(Vec2::new(5.0, 5.0))
+                        .margin(Vec2::new(8.0, 5.0))
                         .layouter(&mut layouter),
                 )
                 .changed()
