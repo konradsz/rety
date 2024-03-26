@@ -1,4 +1,4 @@
-use regex_wasm::{group_captures::GroupCaptures, MatchGroup};
+use rety::{group_captures::GroupCaptures, MatchGroup};
 
 #[test]
 fn named_groups_non_iteratively() {

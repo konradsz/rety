@@ -189,20 +189,24 @@ impl App {
             let mut table_builder = egui_extras::TableBuilder::new(ui)
                 .striped(true)
                 .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-                .column(Column::exact(110.0))
-                .column(Column::exact(300.0));
+                .column(Column::exact(120.0))
+                .column(Column::exact(358.0));
             table_builder = table_builder.sense(egui::Sense::click());
             let table = table_builder.header(20.0, |mut header| {
                 header.col(|ui| {
-                    ui.label(RichText::new("Group name").monospace().strong())
+                    ui.vertical_centered(|ui| {
+                        ui.label(RichText::new("Group name").monospace().strong())
                         .on_hover_text(
                         "The name of the group. If the group is unnamed, its index used instead.",
                     );
+                    });
                 });
 
                 let matches_column_label = if self.iteratively { "Matches" } else { "Match" };
                 header.col(|ui| {
-                    ui.label(RichText::new(matches_column_label).monospace().strong());
+                    ui.vertical_centered(|ui| {
+                        ui.label(RichText::new(matches_column_label).monospace().strong());
+                    });
                 });
             });
             table.body(|mut body| {

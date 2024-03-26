@@ -1,24 +1,22 @@
 [package]
-name = "regex-wasm"
+name = "rety"
 version = "0.1.0"
 authors = ["Konrad Szymoniak <szymoniak.konrad@gmail.com>"]
 license = "MIT"
 edition = "2021"
-rust-version = "1.72"
+rust-version = "1.76"
 
 
 [dependencies]
 egui = "0.25.0"
 egui_extras = "0.25.0"
 eframe = { version = "0.25.0", default-features = false, features = [
-  "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
   "default_fonts", # Embed the default egui fonts.
   "glow",          # Use the glow rendering backend. Alternative: "wgpu".
   "persistence",   # Enable restoring app state when restarting the app.
 ] }
 log = "0.4"
 
-# You only need serde if you want app persistence:
 serde = { version = "1", features = ["derive"] }
 regex = "1.10.2"
 

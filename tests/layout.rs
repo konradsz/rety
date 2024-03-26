@@ -4,7 +4,7 @@ use egui::{
     text::{LayoutJob, LayoutSection},
     FontId,
 };
-use regex_wasm::{
+use rety::{
     group_captures::GroupCaptures,
     layout,
     styles::{DEFAULT_MATCH_COLOR, FONT_SIZE},
