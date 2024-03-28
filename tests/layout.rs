@@ -7,7 +7,7 @@ use egui::{
 use rety::{
     group_captures::GroupCaptures,
     layout,
-    styles::{DEFAULT_MATCH_COLOR, FONT_SIZE},
+    styles::{DEFAULT_MATCH_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_MATCHED},
 };
 
 fn section(range: Range<usize>) -> LayoutSection {
@@ -19,6 +19,7 @@ fn section(range: Range<usize>) -> LayoutSection {
                 family: egui::FontFamily::Monospace,
                 size: FONT_SIZE,
             },
+            color: TEXT_COLOR,
             ..Default::default()
         },
     }
@@ -29,11 +30,12 @@ fn section_colored(range: Range<usize>) -> LayoutSection {
         leading_space: 0.0,
         byte_range: range,
         format: egui::TextFormat {
-            background: DEFAULT_MATCH_COLOR,
             font_id: FontId {
                 family: egui::FontFamily::Monospace,
                 size: FONT_SIZE,
             },
+            color: TEXT_COLOR_MATCHED,
+            background: DEFAULT_MATCH_COLOR,
             ..Default::default()
         },
     }

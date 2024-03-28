@@ -29,7 +29,7 @@ pub const INCORRECT_PATTERN_BG_COLOR: Color32 = Color32::from_rgb(53, 6, 16);
 // TODO: cursor color
 
 pub const COLORS: [Color32; 10] = [
-    Color32::from_rgb(130, 163, 161),
+    DEFAULT_MATCH_COLOR,
     Color32::from_rgb(145, 245, 173),
     Color32::from_rgb(243, 255, 198),
     Color32::from_rgb(234, 210, 172),
