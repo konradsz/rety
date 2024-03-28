@@ -1,7 +1,7 @@
 use egui::{text::LayoutJob, Color32, FontFamily, FontId};
 
 use crate::{
-    styles::{COLORS, DEFAULT_MATCH_COLOR, FONT_SIZE},
+    styles::{COLORS, DEFAULT_MATCH_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_MATCHED},
     MatchGroup,
 };
 
@@ -39,6 +39,7 @@ pub fn set_layout(
                                 family: FontFamily::Monospace,
                                 size: FONT_SIZE,
                             },
+                            color: TEXT_COLOR,
                             ..Default::default()
                         },
                     );
@@ -67,6 +68,7 @@ pub fn set_layout(
                     family: FontFamily::Monospace,
                     size: FONT_SIZE,
                 },
+                color: TEXT_COLOR,
                 ..Default::default()
             },
         );
@@ -91,6 +93,7 @@ fn highlight_group(
                     family: FontFamily::Monospace,
                     size: FONT_SIZE,
                 },
+                color: TEXT_COLOR,
                 ..Default::default()
             },
         );
@@ -104,6 +107,7 @@ fn highlight_group(
                 family: FontFamily::Monospace,
                 size: FONT_SIZE,
             },
+            color: TEXT_COLOR_MATCHED,
             background: color,
             ..Default::default()
         },

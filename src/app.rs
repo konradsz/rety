@@ -1,4 +1,4 @@
-use egui::{Color32, FontFamily, FontId, RichText, Stroke, TextEdit, Vec2, Visuals};
+use egui::{Color32, FontFamily, FontId, RichText, Rounding, Stroke, TextEdit, Vec2, Visuals};
 use egui_extras::Column;
 
 use crate::{
@@ -57,12 +57,12 @@ impl App {
                     Stroke::new(1.0, styles::TEXT_EDIT_INACTIVE_STROKE),
                 ),
                 RegexState::Valid(_) => (
-                    Stroke::new(2.0, styles::CORRECT_PATTERN_STROKE_COLOR),
-                    Stroke::new(2.0, styles::CORRECT_PATTERN_STROKE_COLOR),
+                    Stroke::new(2.0, styles::CORRECT_PATTERN_ACTIVE_STROKE_COLOR),
+                    Stroke::new(2.0, styles::CORRECT_PATTERN_INACTIVE_STROKE_COLOR),
                 ),
                 RegexState::Invalid => (
-                    Stroke::new(2.0, styles::INCORRECT_PATTERN_STROKE_COLOR),
-                    Stroke::new(2.0, styles::INCORRECT_PATTERN_STROKE_COLOR),
+                    Stroke::new(2.0, styles::INCORRECT_PATTERN_ACTIVE_STROKE_COLOR),
+                    Stroke::new(2.0, styles::INCORRECT_PATTERN_INACTIVE_STROKE_COLOR),
                 ),
             };
             let text_edit_background = match self.captures.get_regex_state() {
@@ -89,6 +89,7 @@ impl App {
                             size: styles::FONT_SIZE,
                             family: FontFamily::Monospace,
                         })
+                        .text_color(styles::TEXT_COLOR)
                         .desired_width(450.0)
                         .margin(Vec2::new(8.0, 5.0)),
                 )
@@ -148,6 +149,11 @@ impl App {
 
     fn draw_search_iteratively_checkbox(&mut self, ui: &mut egui::Ui) {
         ui.scope(|ui| {
+            ui.style_mut().spacing.icon_spacing = 5.0;
+            ui.visuals_mut().widgets.active.rounding = Rounding::same(5.0);
+            ui.visuals_mut().widgets.inactive.rounding = Rounding::same(5.0);
+            ui.visuals_mut().widgets.hovered.rounding = Rounding::same(5.0);
+
             if ui
                 .checkbox(
                     &mut self.iteratively,
