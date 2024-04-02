@@ -221,7 +221,7 @@ impl App {
                     });
                 });
             });
-            
+
             table.body(|mut body| {
                 for (idx, group) in transposed.iter().enumerate() {
                     body.row(20.0, |mut row| {
