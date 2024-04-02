@@ -16,7 +16,7 @@ pub struct App {
     text: String,
     iteratively: bool,
     #[serde(skip)]
-    hovered_group_index: Option<usize>,
+    hovered_row_index: Option<usize>,
     #[serde(skip)]
     captures: GroupCaptures,
 }
@@ -27,7 +27,7 @@ impl Default for App {
             regex_str: ".*".to_string(),
             text: "Hello world!".to_string(),
             iteratively: false,
-            hovered_group_index: None,
+            hovered_row_index: None,
             captures: GroupCaptures::default(),
         }
     }
@@ -115,7 +115,7 @@ impl App {
             ui.add_space(3.0);
 
             let matched_groups = self.captures.matched_groups();
-            let hovered_group_index = self.hovered_group_index;
+            let hovered_group_index = self.hovered_row_index;
             let mut layouter = move |ui: &egui::Ui, text: &str, wrap_width: f32| {
                 let mut layout_job = layout::set_layout(text, matched_groups, hovered_group_index);
                 layout_job.wrap.max_width = wrap_width;
@@ -190,13 +190,13 @@ impl App {
                 }
             }
 
-            let hovered_row = if let Some(index) = self.hovered_group_index {
+            let hovered_row_index = if let Some(index) = self.hovered_row_index {
                 ui.visuals_mut().widgets.hovered.bg_fill = COLORS[index % COLORS.len()];
-                true
+                index
             } else {
-                false
+                usize::MAX // no row is hovered, use a value that is out of bounds
             };
-            self.hovered_group_index = None;
+            self.hovered_row_index = None;
 
             let mut table_builder = egui_extras::TableBuilder::new(ui)
                 .striped(true)
@@ -231,23 +231,25 @@ impl App {
                         row.col(|ui| {
                             ui.spacing_mut().item_spacing.x = 1.0;
 
-                            for (idx, g) in group.iter().enumerate() {
-                                let text = if hovered_row {
+                            // TODO: selected row should use black text
+                            for (i, g) in group.iter().enumerate() {
+                                let text = if hovered_row_index == idx {
                                     RichText::new(g.capture.as_str())
                                 } else {
                                     RichText::new(g.capture.as_str())
                                         .background_color(Color32::from_gray(64))
                                 };
+
                                 Label::new(text).selectable(false).ui(ui);
 
-                                if idx < group.len() - 1 {
+                                if i < group.len() - 1 {
                                     Label::new(", ").selectable(false).ui(ui);
                                 }
                             }
                         });
 
                         if row.response().hovered() {
-                            self.hovered_group_index = Some(idx);
+                            self.hovered_row_index = Some(idx);
                         }
                     });
                 }
