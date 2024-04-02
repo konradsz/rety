@@ -1,4 +1,6 @@
-use egui::{Color32, FontFamily, FontId, RichText, Rounding, Stroke, TextEdit, Vec2, Visuals};
+use egui::{
+    Color32, FontFamily, FontId, Label, RichText, Rounding, Stroke, TextEdit, Vec2, Visuals, Widget,
+};
 use egui_extras::Column;
 
 use crate::{
@@ -47,7 +49,9 @@ impl App {
 
     fn draw_pattern_textbox(&mut self, ui: &mut egui::Ui) {
         ui.scope(|ui| {
-            ui.label(RichText::new("Pattern").monospace().strong());
+            Label::new(RichText::new("Pattern").monospace().strong())
+                .selectable(false)
+                .ui(ui);
             ui.add_space(3.0);
 
             let rounding = styles::TEXT_EDIT_ROUNDING;
@@ -105,7 +109,9 @@ impl App {
 
     fn draw_haystack_textbox(&mut self, ui: &mut egui::Ui) {
         ui.scope(|ui| {
-            ui.label(RichText::new("Haystack").monospace().strong());
+            Label::new(RichText::new("Haystack").monospace().strong())
+                .selectable(false)
+                .ui(ui);
             ui.add_space(3.0);
 
             let matched_groups = self.captures.matched_groups();
@@ -202,9 +208,9 @@ impl App {
                 header.col(|ui| {
                     ui.vertical_centered(|ui| {
                         ui.label(RichText::new("Group name").monospace().strong())
-                        .on_hover_text(
-                        "The name of the group. If the group is unnamed, its index used instead.",
-                    );
+                            .on_hover_text(
+                                "The name of the group. If the group is unnamed, its index used instead.",
+                            );
                     });
                 });
 
@@ -215,11 +221,12 @@ impl App {
                     });
                 });
             });
+            
             table.body(|mut body| {
                 for (idx, group) in transposed.iter().enumerate() {
                     body.row(20.0, |mut row| {
                         row.col(|ui| {
-                            ui.monospace(&group[0].name);
+                            Label::new(&group[0].name).selectable(false).ui(ui);
                         });
                         row.col(|ui| {
                             ui.spacing_mut().item_spacing.x = 1.0;
@@ -231,10 +238,10 @@ impl App {
                                     RichText::new(g.capture.as_str())
                                         .background_color(Color32::from_gray(64))
                                 };
-                                ui.monospace(text);
+                                Label::new(text).selectable(false).ui(ui);
 
                                 if idx < group.len() - 1 {
-                                    ui.label(", ");
+                                    Label::new(", ").selectable(false).ui(ui);
                                 }
                             }
                         });
