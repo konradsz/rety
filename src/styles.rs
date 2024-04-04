@@ -7,6 +7,7 @@ pub const DEFAULT_MATCH_COLOR: Color32 = Color32::from_rgb(130, 163, 161);
 pub const BACKGROUND: Color32 = Color32::from_rgb(35, 43, 47); // #232B2F
 
 pub const TEXT_COLOR: Color32 = Color32::from_rgb(212, 212, 212);
+pub const TEXT_COLOR_DIMMED: Color32 = Color32::from_rgb(195, 195, 195);
 pub const TEXT_COLOR_MATCHED: Color32 = Color32::from_rgb(35, 43, 47);
 
 pub const TEXT_EDIT_BACKGROUND: Color32 = Color32::from_rgb(26, 31, 35);

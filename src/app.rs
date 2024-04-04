@@ -226,24 +226,33 @@ impl App {
                 for (idx, group) in transposed.iter().enumerate() {
                     body.row(20.0, |mut row| {
                         row.col(|ui| {
-                            Label::new(&group[0].name).selectable(false).ui(ui);
+                            let text = if hovered_row_index == idx {
+                                RichText::new(&group[0].name).color(styles::BACKGROUND)
+                            } else {
+                                RichText::new(&group[0].name).color(styles::TEXT_COLOR_DIMMED)
+                            };
+                            Label::new(text).selectable(false).ui(ui);
                         });
                         row.col(|ui| {
                             ui.spacing_mut().item_spacing.x = 1.0;
 
-                            // TODO: selected row should use black text
                             for (i, g) in group.iter().enumerate() {
                                 let text = if hovered_row_index == idx {
-                                    RichText::new(g.capture.as_str())
+                                    RichText::new(g.capture.as_str()).color(styles::BACKGROUND)
                                 } else {
                                     RichText::new(g.capture.as_str())
-                                        .background_color(Color32::from_gray(64))
+                                        .background_color(Color32::from_gray(64)).color(styles::TEXT_COLOR_DIMMED)
                                 };
 
                                 Label::new(text).selectable(false).ui(ui);
 
                                 if i < group.len() - 1 {
-                                    Label::new(", ").selectable(false).ui(ui);
+                                    let separator = if hovered_row_index == idx {
+                                        RichText::new(", ").color(styles::BACKGROUND)
+                                    } else {
+                                        RichText::new(", ").color(styles::TEXT_COLOR_DIMMED)
+                                    };
+                                    Label::new(separator).selectable(false).ui(ui);
                                 }
                             }
                         });
