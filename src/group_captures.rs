@@ -18,17 +18,14 @@ pub struct GroupCaptures {
 
 impl GroupCaptures {
     pub fn compile_regex(&mut self, pattern: &str) {
+        self.matched_groups.clear();
+
         if pattern.is_empty() {
             self.regex_state = RegexState::Empty;
-            self.matched_groups.clear();
-            return;
-        }
-
-        if let Ok(regex) = Regex::new(pattern) {
+        } else if let Ok(regex) = Regex::new(pattern) {
             self.regex_state = RegexState::Valid(regex);
         } else {
             self.regex_state = RegexState::Invalid;
-            self.matched_groups.clear();
         }
     }
 
@@ -37,16 +34,16 @@ impl GroupCaptures {
     }
 
     pub fn collect_captures(&mut self, haystack: &str, iteratively: bool) {
-        self.matched_groups.clear(); // TODO: needed here?
+        self.matched_groups.clear();
 
         if let RegexState::Valid(regex) = &self.regex_state {
-            let capture_names = regex.capture_names().collect::<Vec<_>>(); // TODO: do it when pattern changed
+            let capture_names = regex.capture_names().collect::<Vec<_>>();
 
             loop {
                 let start_from = self
                     .matched_groups
                     .last()
-                    .map_or(0, |g| g.first().unwrap().end); // TODO: unwrap
+                    .map_or(0, |g| g.first().unwrap().end);
 
                 let haystack = &haystack[start_from..];
                 if haystack.is_empty() {
@@ -78,9 +75,6 @@ impl GroupCaptures {
                     break;
                 }
             }
-        } else {
-            // TODO: is it necessary? it is already cleared in compile_regex
-            self.matched_groups.clear();
         }
     }
 
